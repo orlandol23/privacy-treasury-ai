@@ -570,6 +570,73 @@
                 <div id="crossChainRebalanceResult"></div>
                 <button onclick="runCrossChainRebalancing()">🌉 Optimize Across Chains</button>
             </div>
+
+            <!-- Gaming Treasury Operation Card -->
+            <div class="card">
+                <h2>🎮 Gaming Treasury Operations</h2>
+                <input type="text" id="gameId" placeholder="Game ID (e.g., dega-rpg-01)" value="dega-rpg-01">
+                <input type="text" id="playerId" placeholder="Player ID (e.g., player123)" value="player123">
+                <select id="gameOperation">
+                    <option value="mint">Mint Tokens</option>
+                    <option value="burn">Burn Tokens</option>
+                    <option value="transfer">Transfer Assets</option>
+                    <option value="stake">Stake Tokens</option>
+                    <option value="reward">Distribute Rewards</option>
+                </select>
+                <input type="number" id="gameAmount" placeholder="Amount" value="100">
+                <input type="text" id="tokenType" placeholder="Token Type (e.g., DEGA)" value="DEGA">
+                <div id="gameOperationResult"></div>
+                <button onclick="processGameOperation()">🚀 Execute Game Operation</button>
+            </div>
+
+            <!-- dAuth Wallet Management Card -->
+            <div class="card">
+                <h2>🔐 dAuth Wallet Management</h2>
+                <input type="text" id="newPlayerId" placeholder="Player ID for new wallet" value="newplayer456">
+                <input type="text" id="newGameId" placeholder="Game ID" value="dega-rpg-01">
+                <div id="walletCreationResult"></div>
+                <button onclick="createPlayerWallet()">👛 Create dAuth Wallet</button>
+                <hr>
+                <input type="text" id="authToken" placeholder="Authentication Token" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                <div id="authResult"></div>
+                <button onclick="authenticatePlayer()">🔒 Authenticate Player</button>
+            </div>
+
+            <!-- MCP Agent Communication Card -->
+            <div class="card">
+                <h2>📡 MCP Agent Communication</h2>
+                <input type="text" id="mcpTargetAgent" placeholder="Target Agent" value="GameAnalyticsAgent">
+                <select id="mcpMethod">
+                    <option value="gaming.treasury.balance">Get Treasury Balance</option>
+                    <option value="gaming.player.stats">Get Player Stats</option>
+                    <option value="gaming.transaction.validate">Validate Transaction</option>
+                </select>
+                <input type="text" id="mcpParams" placeholder='Parameters (JSON)' value='{"playerId":"player123"}'>
+                <div id="mcpResult"></div>
+                <button onclick="communicateWithMCPAgent()">📡 Send MCP Message</button>
+            </div>
+
+            <!-- Gaming Analytics Card -->
+            <div class="card">
+                <h2>📊 Gaming Treasury Analytics</h2>
+                <input type="text" id="analyticsGameId" placeholder="Game ID" value="dega-rpg-01">
+                <div id="gamingAnalyticsResult"></div>
+                <button onclick="getGamingAnalytics()">📈 Generate Analytics</button>
+            </div>
+
+            <!-- Metachin Optimization Card -->
+            <div class="card">
+                <h2>⚡ Metachin Scaling Optimization</h2>
+                <div id="metachainResult"></div>
+                <button onclick="optimizeMetachains()">🔧 Optimize Scaling</button>
+            </div>
+
+            <!-- DEGA Service Status Card -->
+            <div class="card">
+                <h2>🎮 DEGA Service Status</h2>
+                <div id="degaStatusResult"></div>
+                <button onclick="getDEGAStatus()">📊 Check Service Status</button>
+            </div>
         </div>
     </div>
     
@@ -1120,6 +1187,216 @@
                 `;
             } catch (error) {
                 resultDiv.innerHTML = '<div class="alert">Failed to calculate cross-chain rebalancing.</div>';
+            }
+        }
+
+        // DEGA MCP Gaming Functions
+        async function processGameOperation() {
+            const resultDiv = document.getElementById('gameOperationResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Processing game operation...</div>';
+            
+            const gameId = document.getElementById('gameId').value;
+            const playerId = document.getElementById('playerId').value;
+            const operation = document.getElementById('gameOperation').value;
+            const amount = document.getElementById('gameAmount').value;
+            const tokenType = document.getElementById('tokenType').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/game-operation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameId, playerId, operation, amount: parseFloat(amount), tokenType })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🎮 Game Operation Complete!</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Transaction ID:</strong> ${result.transactionId || 'N/A'}</p>
+                        <p><strong>Operation:</strong> ${operation} - ${amount} ${tokenType}</p>
+                        <p><strong>Gas Used:</strong> ${result.gasUsed || 'N/A'}</p>
+                        <p><small>Processed: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to process game operation.</div>';
+            }
+        }
+
+        async function createPlayerWallet() {
+            const resultDiv = document.getElementById('walletCreationResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Creating dAuth wallet...</div>';
+            
+            const playerId = document.getElementById('newPlayerId').value;
+            const gameId = document.getElementById('newGameId').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/create-wallet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playerId, gameId })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>👛 dAuth Wallet Created!</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Wallet Address:</strong> ${result.walletAddress}</p>
+                        <p><strong>JWT Token:</strong> ${result.jwtToken ? '***' + result.jwtToken.slice(-10) : 'N/A'}</p>
+                        <p><strong>Expiry:</strong> ${result.expiresIn || 'N/A'}</p>
+                        <p><small>Created: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to create wallet.</div>';
+            }
+        }
+
+        async function authenticatePlayer() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Authenticating player...</div>';
+            
+            const token = document.getElementById('authToken').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/authenticate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🔒 Authentication Result</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Valid:</strong> ${result.valid ? '✅ Yes' : '❌ No'}</p>
+                        <p><strong>Player ID:</strong> ${result.playerId || 'N/A'}</p>
+                        <p><strong>Game ID:</strong> ${result.gameId || 'N/A'}</p>
+                        <p><small>Verified: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Authentication failed.</div>';
+            }
+        }
+
+        async function communicateWithMCPAgent() {
+            const resultDiv = document.getElementById('mcpResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Communicating with MCP agent...</div>';
+            
+            const targetAgent = document.getElementById('mcpTargetAgent').value;
+            const method = document.getElementById('mcpMethod').value;
+            const params = document.getElementById('mcpParams').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/mcp-communicate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetAgent, method, params: JSON.parse(params) })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>📡 MCP Communication Result</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Agent:</strong> ${targetAgent}</p>
+                        <p><strong>Method:</strong> ${method}</p>
+                        <p><strong>Response Time:</strong> ${result.responseTime || 'N/A'}ms</p>
+                        <p><strong>Message ID:</strong> ${result.messageId || 'N/A'}</p>
+                        <p><small>Sent: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">MCP communication failed.</div>';
+            }
+        }
+
+        async function getGamingAnalytics() {
+            const resultDiv = document.getElementById('gamingAnalyticsResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Generating gaming analytics...</div>';
+            
+            const gameId = document.getElementById('analyticsGameId').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/analytics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameId })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>📊 Gaming Treasury Analytics</h4>
+                        <p><strong>Total Players:</strong> ${result.totalPlayers || 'N/A'}</p>
+                        <p><strong>Treasury Balance:</strong> ${result.treasuryBalance || 'N/A'} DEGA</p>
+                        <p><strong>Daily Volume:</strong> $${result.dailyVolume || 'N/A'}</p>
+                        <p><strong>Active Sessions:</strong> ${result.activeSessions || 'N/A'}</p>
+                        <p><strong>Revenue (24h):</strong> $${result.dailyRevenue || 'N/A'}</p>
+                        <p><small>Generated: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to generate analytics.</div>';
+            }
+        }
+
+        async function optimizeMetachains() {
+            const resultDiv = document.getElementById('metachainResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Optimizing metachin scaling...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/metachin-optimize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>⚡ Metachin Optimization Complete</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Performance Improvement:</strong> ${result.performanceImprovement || 'N/A'}%</p>
+                        <p><strong>Gas Savings:</strong> ${result.gasSavings || 'N/A'}%</p>
+                        <p><strong>Optimized Chains:</strong> ${result.optimizedChains?.join(', ') || 'N/A'}</p>
+                        <p><strong>Latency Reduction:</strong> ${result.latencyReduction || 'N/A'}ms</p>
+                        <p><small>Optimized: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Metachin optimization failed.</div>';
+            }
+        }
+
+        async function getDEGAStatus() {
+            const resultDiv = document.getElementById('degaStatusResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Checking DEGA service status...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/dega/status`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🎮 DEGA Service Status</h4>
+                        <p><strong>Service Status:</strong> ${result.status === 'active' ? '🟢 Active' : '🔴 Inactive'}</p>
+                        <p><strong>Active Games:</strong> ${result.activeGames || 'N/A'}</p>
+                        <p><strong>Total Players:</strong> ${result.totalPlayers || 'N/A'}</p>
+                        <p><strong>MCP Agents:</strong> ${result.mcpAgents || 'N/A'}</p>
+                        <p><strong>System Health:</strong> ${result.systemHealth || 'N/A'}%</p>
+                        <p><strong>Uptime:</strong> ${result.uptime || 'N/A'}</p>
+                        <p><small>Checked: ${new Date().toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to check service status.</div>';
             }
         }
 

@@ -177,6 +177,83 @@ app.post('/api/cross-chain-rebalancing', async (req, res) => {
   }
 });
 
+// Gaming Treasury Operation endpoint
+app.post('/api/game-treasury-operation', async (req, res) => {
+  try {
+    const { gameId, playerId, operation, amount, tokenType, metadata } = req.body;
+    const result = await treasuryAgent.processGameTreasuryOperation(
+      gameId, playerId, operation, amount, tokenType, metadata
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Game treasury operation failed' });
+  }
+});
+
+// Player Wallet Creation endpoint
+app.post('/api/create-player-wallet', async (req, res) => {
+  try {
+    const { playerId, gameId } = req.body;
+    const wallet = await treasuryAgent.createPlayerWallet(playerId, gameId);
+    res.json(wallet);
+  } catch (error) {
+    res.status(500).json({ error: 'Player wallet creation failed' });
+  }
+});
+
+// Player Authentication endpoint
+app.post('/api/authenticate-player', async (req, res) => {
+  try {
+    const { token } = req.body;
+    const auth = await treasuryAgent.authenticatePlayer(token);
+    res.json(auth);
+  } catch (error) {
+    res.status(500).json({ error: 'Player authentication failed' });
+  }
+});
+
+// MCP Agent Communication endpoint
+app.post('/api/mcp-agent-communication', async (req, res) => {
+  try {
+    const { targetAgent, method, params } = req.body;
+    const response = await treasuryAgent.communicateMCPAgent(targetAgent, method, params);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: 'MCP agent communication failed' });
+  }
+});
+
+// Gaming Treasury Analytics endpoint
+app.get('/api/game-treasury-analytics/:gameId', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const analytics = await treasuryAgent.getGameTreasuryAnalytics(gameId);
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Gaming treasury analytics failed' });
+  }
+});
+
+// Metachin Optimization endpoint
+app.get('/api/metachin-optimization', async (req, res) => {
+  try {
+    const optimization = await treasuryAgent.optimizeMetachainScaling();
+    res.json(optimization);
+  } catch (error) {
+    res.status(500).json({ error: 'Metachin optimization failed' });
+  }
+});
+
+// DEGA Service Status endpoint
+app.get('/api/dega-service-status', async (req, res) => {
+  try {
+    const status = treasuryAgent.getDEGAServiceStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: 'DEGA service status failed' });
+  }
+});
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log('');
@@ -203,7 +280,17 @@ app.listen(PORT, () => {
   console.log(`   GET  http://localhost:${PORT}/api/gas-optimization`);
   console.log(`   POST http://localhost:${PORT}/api/cross-chain-rebalancing`);
   console.log('');
+  console.log('🎮 DEGA MCP Gaming Endpoints:');
+  console.log(`   POST http://localhost:${PORT}/api/game-treasury-operation`);
+  console.log(`   POST http://localhost:${PORT}/api/create-player-wallet`);
+  console.log(`   POST http://localhost:${PORT}/api/authenticate-player`);
+  console.log(`   POST http://localhost:${PORT}/api/mcp-agent-communication`);
+  console.log(`   GET  http://localhost:${PORT}/api/game-treasury-analytics/:gameId`);
+  console.log(`   GET  http://localhost:${PORT}/api/metachin-optimization`);
+  console.log(`   GET  http://localhost:${PORT}/api/dega-service-status`);
+  console.log('');
   console.log('🔗 Tech Stack: Midnight | ElizaOS | DEGA MCP');
-  console.log('🎯 Status: Day 2 Cross-Chain Orchestration Complete!');
+  console.log('🎯 Status: Day 2 DEGA MCP Integration Complete!');
+  console.log('🏆 Total API Endpoints: 21 | Total Features: 17+');
   console.log('');
 });

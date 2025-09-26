@@ -1,5 +1,6 @@
 import { AIAutomationEngine } from './AIAutomationEngine';
 import { CrossChainOrchestrator } from './CrossChainOrchestrator';
+import { DEGAMCPService } from './DEGAMCPService';
 
 interface Asset {
   symbol: string;
@@ -33,6 +34,7 @@ export class TreasuryAgent {
   private version: string = "1.0.0";
   private aiEngine: AIAutomationEngine;
   private crossChainOrchestrator: CrossChainOrchestrator;
+  private degaMCPService: DEGAMCPService;
   
   constructor() {
     console.log(`✨ ${this.name} Agent v${this.version} initialized`);
@@ -40,6 +42,7 @@ export class TreasuryAgent {
     console.log(`🤖 AI Engine: Active (ElizaOS)`);
     this.aiEngine = new AIAutomationEngine();
     this.crossChainOrchestrator = new CrossChainOrchestrator();
+    this.degaMCPService = new DEGAMCPService();
   }
   
   // Analyze portfolio and generate insights
@@ -515,6 +518,153 @@ export class TreasuryAgent {
       };
     } catch (error) {
       console.error('Cross-chain rebalancing error:', error);
+      throw error;
+    }
+  }
+
+  // DEGA MCP Gaming Treasury Operations
+  async processGameTreasuryOperation(
+    gameId: string,
+    playerId: string,
+    operation: 'mint' | 'burn' | 'transfer' | 'stake' | 'reward',
+    amount: number,
+    tokenType: string,
+    metadata: any = {}
+  ): Promise<any> {
+    try {
+      console.log(`🎮 Processing game treasury operation: ${operation} for player ${playerId}`);
+      const result = await this.degaMCPService.processGameTreasuryOperation({
+        gameId,
+        playerId,
+        operation,
+        amount,
+        tokenType,
+        metadata
+      });
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        operation: result,
+        message: `Game treasury operation ${operation} completed successfully`
+      };
+    } catch (error) {
+      console.error('Game treasury operation error:', error);
+      throw error;
+    }
+  }
+
+  // dAuth Wallet Management
+  async createPlayerWallet(playerId: string, gameId: string): Promise<any> {
+    try {
+      console.log(`🔐 Creating dAuth wallet for player ${playerId} in game ${gameId}`);
+      const wallet = await this.degaMCPService.createDAuthWallet(playerId, gameId);
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        wallet: {
+          walletId: wallet.walletId,
+          publicKey: wallet.publicKey,
+          gameAssociations: wallet.gameAssociations,
+          createdAt: wallet.createdAt
+        },
+        message: 'dAuth wallet created successfully'
+      };
+    } catch (error) {
+      console.error('Wallet creation error:', error);
+      throw error;
+    }
+  }
+
+  // Player Authentication
+  async authenticatePlayer(token: string): Promise<any> {
+    try {
+      console.log('🔐 Authenticating player with dAuth token...');
+      const authResult = await this.degaMCPService.authenticatePlayer(token);
+      
+      return {
+        success: authResult.success,
+        timestamp: new Date().toISOString(),
+        authentication: authResult,
+        message: authResult.success ? 'Player authenticated successfully' : 'Authentication failed'
+      };
+    } catch (error) {
+      console.error('Authentication error:', error);
+      throw error;
+    }
+  }
+
+  // MCP Agent Communication
+  async communicateMCPAgent(targetAgent: string, method: string, params: any): Promise<any> {
+    try {
+      console.log(`📡 Communicating with MCP agent: ${targetAgent} - ${method}`);
+      const response = await this.degaMCPService.sendMCPMessage(targetAgent, method, params);
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        agent: targetAgent,
+        method,
+        response,
+        message: 'MCP communication completed successfully'
+      };
+    } catch (error) {
+      console.error('MCP communication error:', error);
+      throw error;
+    }
+  }
+
+  // Gaming Treasury Analytics
+  async getGameTreasuryAnalytics(gameId: string): Promise<any> {
+    try {
+      console.log(`📊 Generating gaming treasury analytics for ${gameId}`);
+      const analytics = await this.degaMCPService.getGameTreasuryAnalytics(gameId);
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        analytics,
+        message: 'Gaming treasury analytics generated successfully'
+      };
+    } catch (error) {
+      console.error('Gaming analytics error:', error);
+      throw error;
+    }
+  }
+
+  // Metachin Optimization
+  async optimizeMetachainScaling(): Promise<any> {
+    try {
+      console.log('⚡ Optimizing metachin scaling...');
+      const optimization = await this.degaMCPService.optimizeMetachainScaling();
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        optimization,
+        message: 'Metachin scaling optimization completed'
+      };
+    } catch (error) {
+      console.error('Metachin optimization error:', error);
+      throw error;
+    }
+  }
+
+  // DEGA Service Status
+  getDEGAServiceStatus(): any {
+    try {
+      console.log('📊 Retrieving DEGA MCP service status...');
+      const status = this.degaMCPService.getServiceStatus();
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        status,
+        message: 'DEGA MCP service status retrieved successfully'
+      };
+    } catch (error) {
+      console.error('Service status error:', error);
       throw error;
     }
   }
