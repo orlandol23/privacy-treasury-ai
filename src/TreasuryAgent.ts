@@ -29,6 +29,8 @@ interface PrivateTransaction {
   midnightProtocol: boolean;
 }
 
+type AssetInput = Asset | (Partial<Asset> & { symbol: string });
+
 export class TreasuryAgent {
   private name: string = "PrivacyTreasuryAI";
   private version: string = "1.0.0";
@@ -46,15 +48,10 @@ export class TreasuryAgent {
   }
   
   // Analyze portfolio and generate insights
-  async analyzePortfolio(assets: Asset[]): Promise<PortfolioAnalysis> {
-    // Calculate total value
-    const totalValueUSD = assets.reduce((sum, asset) => sum + asset.valueUSD, 0);
-    
-    // Calculate percentages
-    const assetsWithPercentage = assets.map(asset => ({
-      ...asset,
-      percentage: (asset.valueUSD / totalValueUSD) * 100
-    }));
+  async analyzePortfolio(assets: AssetInput[]): Promise<PortfolioAnalysis> {
+    const normalizedAssets = this.normalizeAssetInputs(assets);
+    const assetsWithPercentage = this.ensurePercentages(normalizedAssets);
+    const totalValueUSD = assetsWithPercentage.reduce((sum, asset) => sum + asset.valueUSD, 0);
     
     // Calculate risk and diversification scores
     const riskScore = this.calculateRiskScore(assetsWithPercentage);
@@ -117,9 +114,13 @@ export class TreasuryAgent {
   
   // Generate AI-powered recommendations
   async getAIRecommendations(
-    currentAllocation: Asset[],
+    currentAllocationInput: AssetInput[],
     marketConditions: any
   ) {
+    const currentAllocation = this.ensurePercentages(
+      this.normalizeAssetInputs(currentAllocationInput)
+    );
+
     // Market analysis
     const marketTrend = marketConditions?.trend || 'neutral';
     const volatility = marketConditions?.volatility || 'medium';
@@ -180,14 +181,15 @@ export class TreasuryAgent {
   
   // Simulate portfolio rebalancing
   async simulateRebalancing(
-    currentPortfolio: Asset[],
+    currentPortfolio: AssetInput[],
     targetAllocation: { symbol: string; targetPercentage: number }[]
   ) {
-    const totalValue = currentPortfolio.reduce((sum, asset) => sum + asset.valueUSD, 0);
+    const portfolio = this.normalizeAssetInputs(currentPortfolio);
+    const totalValue = portfolio.reduce((sum, asset) => sum + asset.valueUSD, 0);
     
     // Calculate required changes
     const changes = targetAllocation.map(target => {
-      const currentAsset = currentPortfolio.find(a => a.symbol === target.symbol);
+  const currentAsset = portfolio.find(a => a.symbol === target.symbol);
       const currentValue = currentAsset?.valueUSD || 0;
       const targetValue = totalValue * (target.targetPercentage / 100);
       const difference = targetValue - currentValue;
@@ -337,6 +339,40 @@ export class TreasuryAgent {
     
     return alerts;
   }
+
+  private normalizeAssetInputs(assets: AssetInput[]): Asset[] {
+    return assets.map(asset => ({
+      symbol: asset.symbol,
+      amount: asset.amount ?? 0,
+      valueUSD: asset.valueUSD ?? 0,
+      percentage: asset.percentage
+    }));
+  }
+
+  private ensurePercentages(assets: Asset[]): Asset[] {
+    const totalValue = assets.reduce((sum, asset) => sum + asset.valueUSD, 0);
+
+    if (totalValue > 0) {
+      return assets.map(asset => ({
+        ...asset,
+        percentage: asset.percentage ?? (asset.valueUSD / totalValue) * 100
+      }));
+    }
+
+    const allPercentagesProvided = assets.every(
+      asset => typeof asset.percentage === 'number'
+    );
+
+    if (allPercentagesProvided) {
+      return assets;
+    }
+
+    const defaultPercentage = assets.length > 0 ? 100 / assets.length : 0;
+    return assets.map(asset => ({
+      ...asset,
+      percentage: asset.percentage ?? defaultPercentage
+    }));
+  }
   
   private generateTransactionId(): string {
     return `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -349,10 +385,11 @@ export class TreasuryAgent {
   }
 
   // Advanced ML Portfolio Optimization
-  async getMLOptimization(assets: Asset[], riskTolerance: number, timeHorizon: number): Promise<any> {
+  async getMLOptimization(assets: AssetInput[], riskTolerance: number, timeHorizon: number): Promise<any> {
     try {
       console.log('🧠 Running ML portfolio optimization...');
-      const optimization = await this.aiEngine.optimizePortfolio(assets, {
+      const normalizedAssets = this.normalizeAssetInputs(assets);
+      const optimization = await this.aiEngine.optimizePortfolio(normalizedAssets, {
         riskTolerance,
         timeHorizon,
         rebalanceFrequency: 'monthly'
@@ -370,10 +407,11 @@ export class TreasuryAgent {
   }
 
   // Advanced Risk Assessment
-  async getAdvancedRiskAssessment(assets: Asset[]): Promise<any> {
+  async getAdvancedRiskAssessment(assets: AssetInput[]): Promise<any> {
     try {
       console.log('📊 Running advanced risk assessment...');
-      const riskAssessment = await this.aiEngine.assessRisk(assets);
+      const normalizedAssets = this.normalizeAssetInputs(assets);
+      const riskAssessment = await this.aiEngine.assessRisk(normalizedAssets);
       return {
         success: true,
         timestamp: new Date().toISOString(),
@@ -387,15 +425,48 @@ export class TreasuryAgent {
   }
 
   // Yield Optimization
-  async getYieldOptimization(assets: Asset[], strategy: string): Promise<any> {
+  async getYieldOptimization(
+    assets: Array<AssetInput | string>,
+    strategy?: string,
+    options: { amount?: number; riskLevel?: string; protocols?: string[] } = {}
+  ): Promise<any> {
     try {
       console.log('💰 Running yield optimization...');
-      const yieldOpportunities = await this.aiEngine.optimizeYield(assets, strategy);
+
+      const normalizedAssets = this.normalizeAssetInputs(
+        assets.map(asset => (typeof asset === 'string' ? { symbol: asset } : asset))
+      );
+
+      const totalValue = normalizedAssets.reduce((sum, asset) => sum + asset.valueUSD, 0);
+      if (options.amount && totalValue === 0 && normalizedAssets.length > 0) {
+        const perAssetValue = options.amount / normalizedAssets.length;
+        normalizedAssets.forEach(asset => {
+          asset.valueUSD = perAssetValue;
+        });
+      }
+
+      const selectedStrategy = strategy
+        ?? options.riskLevel?.toLowerCase()
+        ?? 'balanced';
+
+      const preparedAssets = this.ensurePercentages(normalizedAssets);
+
+      const yieldOpportunities = await this.aiEngine.optimizeYield(
+        preparedAssets,
+        selectedStrategy
+      );
+
       return {
         success: true,
         timestamp: new Date().toISOString(),
         yieldOpportunities,
-        strategy,
+        allocation: preparedAssets,
+        strategy: selectedStrategy,
+        context: {
+          riskLevel: options.riskLevel,
+          totalAmount: options.amount,
+          protocols: options.protocols
+        },
         message: 'Yield optimization completed successfully'
       };
     } catch (error) {

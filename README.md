@@ -98,7 +98,14 @@ An autonomous AI agent system that:
 - Task delegation capabilities
 - Consensus mechanisms
 
+#### 5. Hardened API Surface
+- Zod-powered validation covering every request shape
+- Standardized success/error envelopes with versioned metadata
+- Adaptive caching and performance telemetry observers
+
 ### 📊 API Endpoints
+
+> Every endpoint responds with a standard JSON envelope: `{ success, data, timestamp, version }`. Errors use `{ success: false, error, details? }`.
 
 #### Core Treasury Management
 | Endpoint | Method | Description |
@@ -117,6 +124,33 @@ An autonomous AI agent system that:
 | `/api/yield-optimization` | POST | DeFi yield farming opportunities |
 | `/api/correlation-analysis` | GET | Asset correlation matrix analysis |
 
+#### Cross-Chain & Infrastructure
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/multi-chain-balances` | POST | Aggregate balances across supported chains |
+| `/api/cross-chain-bridge` | POST | Simulate cross-chain bridge transfer |
+| `/api/gas-optimization` | GET | Latest gas optimization insights |
+| `/api/cross-chain-rebalancing` | POST | Generate cross-chain rebalancing plan |
+| `/api/metachin-optimization` | GET | Optimize DEGA metachain scaling |
+
+#### DEGA MCP Gaming
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/game-treasury-operation` | POST | Execute DEGA treasury operation (mint/burn/stake/etc.) |
+| `/api/create-player-wallet` | POST | Provision dAuth wallet for a player |
+| `/api/authenticate-player` | POST | Validate player token via DEGA dAuth |
+| `/api/mcp-agent-communication` | POST | Send message to DEGA MCP agent |
+| `/api/game-treasury-analytics/:gameId` | GET | Fetch treasury analytics for a game |
+| `/api/dega-service-status` | GET | Check DEGA MCP integration status |
+
+#### System Observability
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/system/performance` | GET | Performance metrics snapshot + cache stats |
+| `/api/system/health` | GET | High-level system health summary |
+
+_Adaptive caching is automatically applied to frequently accessed GET endpoints._
+
 ### 🚀 Quick Start
 
 ```bash
@@ -133,14 +167,14 @@ cp .env.example .env
 # Run the application
 pnpm start
 
-# Access at http://localhost:3000
+# Access at http://localhost:3001
 ```
 
 ### 🔧 Configuration
 
 Create `.env` file:
 ```env
-PORT=3000
+PORT=3001
 MIDNIGHT_RPC_URL=https://testnet.midnight.network
 DEGA_API_ENDPOINT=https://api.dega.org
 NODE_ENV=development

@@ -1,31 +1,85 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import compression from 'compression';
 import helmet from 'helmet';
 import { TreasuryAgent } from './TreasuryAgent';
+import { enhancedPerformanceMiddleware, performanceMonitor } from './performance/monitor';
+import {
+  cacheMiddleware,
+  performanceMiddleware as requestPerformanceMiddleware
+} from './performance/optimization';
+import { sendError, sendSuccess, sendValidationError } from './utils/http';
+import {
+  analyzePortfolioSchema,
+  privateTransactionSchema,
+  aiRecommendationsSchema,
+  simulateRebalanceSchema,
+  agentCommunicationSchema,
+  mlOptimizationSchema,
+  riskAssessmentSchema,
+  yieldOptimizationSchema,
+  multiChainBalanceSchema,
+  crossChainBridgeSchema,
+  crossChainRebalanceSchema,
+  gameTreasuryOperationSchema,
+  createWalletSchema,
+  authenticatePlayerSchema,
+  mcpCommunicationSchema
+} from './utils/validation';
+import config, { validateEnvironment } from './config/environment';
 
-dotenv.config();
+// Validate environment configuration
+validateEnvironment();
 
 const app = express();
 
 // Performance and security middleware
 app.use(helmet({ contentSecurityPolicy: false })); // Security headers
 app.use(compression()); // Gzip compression
-app.use(cors());
+app.use(cors({ 
+  origin: config.security.corsOrigins,
+  credentials: true 
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public', { maxAge: '1d', etag: true }));
+app.use(requestPerformanceMiddleware);
+app.use(enhancedPerformanceMiddleware);
 
 // Initialize our AI treasury agent
 const treasuryAgent = new TreasuryAgent();
+
+const shortCache = cacheMiddleware(120000); // 2 minutes
+const mediumCache = cacheMiddleware(300000); // 5 minutes
+const telemetryCache = cacheMiddleware(30000); // 30 seconds
+
+const parseTimeHorizon = (value: number | string | undefined): number => {
+  if (typeof value === 'number' && !Number.isNaN(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase();
+    const match = lower.match(/(\d+(\.\d+)?)/);
+    if (match) {
+      const quantity = Number(match[1]);
+      if (lower.includes('year')) {
+        return Math.round(quantity * 12);
+      }
+      if (lower.includes('month')) {
+        return Math.round(quantity);
+      }
+    }
+  }
+
+  return 12; // default 12 months
+};
 
 // ===== API ROUTES =====
 
 // Health check endpoint
 app.get('/', (req, res) => {
-  res.json({ 
+  return sendSuccess(res, {
     message: '🤖 PrivacyTreasuryAI is online!',
-    version: '1.0.0',
     features: ['AI Analysis', 'Private Transactions', 'Auto Rebalancing'],
     tech: ['Midnight Blockchain', 'ElizaOS', 'DEGA MCP']
   });
@@ -34,262 +88,391 @@ app.get('/', (req, res) => {
 // Analyze DAO portfolio
 app.post('/api/analyze-portfolio', async (req, res) => {
   try {
-    const { assets } = req.body;
+    const parsed = analyzePortfolioSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { assets } = parsed.data;
     const analysis = await treasuryAgent.analyzePortfolio(assets);
-    res.json(analysis);
+    return sendSuccess(res, analysis);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to analyze portfolio' });
+    return sendError(res, error, 'Failed to analyze portfolio');
   }
 });
 
 // Create private transaction using Midnight
 app.post('/api/private-transaction', async (req, res) => {
   try {
-    const { from, to, amount, assetType } = req.body;
+    const parsed = privateTransactionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { from, to, amount, assetType } = parsed.data;
     const transaction = await treasuryAgent.createPrivateTransaction(
       from, to, amount, assetType
     );
-    res.json(transaction);
+    return sendSuccess(res, transaction);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create private transaction' });
+    return sendError(res, error, 'Failed to create private transaction');
   }
 });
 
 // Get AI-powered recommendations
 app.post('/api/ai-recommendations', async (req, res) => {
   try {
-    const { currentAllocation, marketConditions } = req.body;
+    const parsed = aiRecommendationsSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { currentAllocation, marketConditions } = parsed.data;
+    const allocationArray = Array.isArray(currentAllocation)
+      ? currentAllocation.map(asset => ({
+          symbol: asset.symbol,
+          amount: asset.amount ?? 0,
+          valueUSD: asset.valueUSD ?? 0,
+          percentage: asset.percentage
+        }))
+      : Object.entries(currentAllocation).map(([symbol, percentage]) => ({
+          symbol,
+          amount: 0,
+          valueUSD: 0,
+          percentage
+        }));
+
     const recommendations = await treasuryAgent.getAIRecommendations(
-      currentAllocation,
-      marketConditions
+      allocationArray,
+      marketConditions ?? {}
     );
-    res.json(recommendations);
+    return sendSuccess(res, recommendations);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate recommendations' });
+    return sendError(res, error, 'Failed to generate recommendations');
   }
 });
 
 // Simulate portfolio rebalancing
 app.post('/api/simulate-rebalance', async (req, res) => {
   try {
-    const { currentPortfolio, targetAllocation } = req.body;
+    const parsed = simulateRebalanceSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { currentPortfolio, targetAllocation } = parsed.data;
     const simulation = await treasuryAgent.simulateRebalancing(
       currentPortfolio,
       targetAllocation
     );
-    res.json(simulation);
+    return sendSuccess(res, simulation);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to simulate rebalancing' });
+    return sendError(res, error, 'Failed to simulate rebalancing');
   }
 });
 
 // Agent communication endpoint (DEGA MCP)
 app.post('/api/agent-communication', async (req, res) => {
   try {
-    const { message, targetAgent } = req.body;
+    const parsed = agentCommunicationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { message, targetAgent } = parsed.data;
     const response = await treasuryAgent.communicateWithAgent(message, targetAgent);
-    res.json(response);
+    return sendSuccess(res, response);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to communicate with agent' });
+    return sendError(res, error, 'Failed to communicate with agent');
   }
 });
 
 // Advanced ML Portfolio Optimization endpoint
 app.post('/api/ml-optimization', async (req, res) => {
   try {
-    const { assets, riskTolerance, timeHorizon } = req.body;
-    const optimization = await treasuryAgent.getMLOptimization(assets, riskTolerance, timeHorizon);
-    res.json(optimization);
+    const parsed = mlOptimizationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const {
+      assets,
+      portfolio,
+      riskTolerance = 5,
+      timeHorizon
+    } = parsed.data;
+
+    const selectedAssets = assets ?? portfolio ?? [];
+    const normalizedRiskTolerance = typeof riskTolerance === 'number' ? riskTolerance : 5;
+    const normalizedTimeHorizon = parseTimeHorizon(timeHorizon);
+
+    const optimization = await treasuryAgent.getMLOptimization(
+      selectedAssets,
+      normalizedRiskTolerance,
+      normalizedTimeHorizon
+    );
+    return sendSuccess(res, optimization);
   } catch (error) {
-    res.status(500).json({ error: 'ML optimization failed' });
+    return sendError(res, error, 'ML optimization failed');
   }
 });
 
 // Risk Assessment endpoint
 app.post('/api/risk-assessment', async (req, res) => {
   try {
-    const { assets } = req.body;
-    const riskAssessment = await treasuryAgent.getAdvancedRiskAssessment(assets);
-    res.json(riskAssessment);
+    const parsed = riskAssessmentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { assets, portfolio } = parsed.data;
+    const selectedAssets = assets ?? portfolio ?? [];
+    const riskAssessment = await treasuryAgent.getAdvancedRiskAssessment(selectedAssets);
+    return sendSuccess(res, riskAssessment);
   } catch (error) {
-    res.status(500).json({ error: 'Risk assessment failed' });
+    return sendError(res, error, 'Risk assessment failed');
   }
 });
 
 // Yield Optimization endpoint
 app.post('/api/yield-optimization', async (req, res) => {
   try {
-    const { assets, strategy } = req.body;
-    const yieldOptimization = await treasuryAgent.getYieldOptimization(assets, strategy);
-    res.json(yieldOptimization);
+    const parsed = yieldOptimizationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { assets: rawAssets, strategy, riskLevel, amount, protocols } = parsed.data;
+    const normalizedAssets = rawAssets.map(asset => {
+      if (typeof asset === 'string') {
+        return asset;
+      }
+
+      return {
+        symbol: asset.symbol,
+        amount: 'amount' in asset && asset.amount !== undefined ? asset.amount : 0,
+        valueUSD: 'valueUSD' in asset && asset.valueUSD !== undefined ? asset.valueUSD : 0,
+        percentage: 'percentage' in asset ? (asset as any).percentage : undefined
+      };
+    });
+
+    const yieldOptimization = await treasuryAgent.getYieldOptimization(
+      normalizedAssets,
+      strategy,
+      { amount, riskLevel, protocols }
+    );
+    return sendSuccess(res, yieldOptimization);
   } catch (error) {
-    res.status(500).json({ error: 'Yield optimization failed' });
+    return sendError(res, error, 'Yield optimization failed');
   }
 });
 
 // Correlation Analysis endpoint
-app.get('/api/correlation-analysis', async (req, res) => {
+app.get('/api/correlation-analysis', mediumCache, async (req, res) => {
   try {
     const correlationMatrix = await treasuryAgent.getCorrelationAnalysis();
-    res.json(correlationMatrix);
+    return sendSuccess(res, correlationMatrix);
   } catch (error) {
-    res.status(500).json({ error: 'Correlation analysis failed' });
+    return sendError(res, error, 'Correlation analysis failed');
   }
 });
 
 // Multi-Chain Balance endpoint
 app.post('/api/multi-chain-balances', async (req, res) => {
   try {
-    const { walletAddress } = req.body;
+    const parsed = multiChainBalanceSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { walletAddress } = parsed.data;
     const balances = await treasuryAgent.getMultiChainBalances(walletAddress);
-    res.json(balances);
+    return sendSuccess(res, balances);
   } catch (error) {
-    res.status(500).json({ error: 'Multi-chain balance fetch failed' });
+    return sendError(res, error, 'Multi-chain balance fetch failed');
   }
 });
 
 // Cross-Chain Bridge endpoint
 app.post('/api/cross-chain-bridge', async (req, res) => {
   try {
-    const { fromChain, toChain, asset, amount, recipientAddress } = req.body;
+    const parsed = crossChainBridgeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { fromChain, toChain, asset, amount, recipientAddress } = parsed.data;
     const bridgeOperation = await treasuryAgent.initiateCrossChainBridge(
       fromChain, toChain, asset, amount, recipientAddress
     );
-    res.json(bridgeOperation);
+    return sendSuccess(res, bridgeOperation);
   } catch (error) {
-    res.status(500).json({ error: 'Cross-chain bridge failed' });
+    return sendError(res, error, 'Cross-chain bridge failed');
   }
 });
 
 // Gas Optimization endpoint
-app.get('/api/gas-optimization', async (req, res) => {
+app.get('/api/gas-optimization', shortCache, async (req, res) => {
   try {
     const gasOptimization = await treasuryAgent.getGasOptimization();
-    res.json(gasOptimization);
+    return sendSuccess(res, gasOptimization);
   } catch (error) {
-    res.status(500).json({ error: 'Gas optimization failed' });
+    return sendError(res, error, 'Gas optimization failed');
   }
 });
 
 // Cross-Chain Rebalancing endpoint
 app.post('/api/cross-chain-rebalancing', async (req, res) => {
   try {
-    const { walletAddress, targetAllocation } = req.body;
-    const allocationMap = new Map(Object.entries(targetAllocation).map(([k, v]) => [k, Number(v)]));
+    const parsed = crossChainRebalanceSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { walletAddress, targetAllocation } = parsed.data;
+    const allocationMap = Array.isArray(targetAllocation)
+      ? new Map(targetAllocation.map(item => [item.symbol, item.percentage]))
+      : new Map(Object.entries(targetAllocation));
     const rebalancing = await treasuryAgent.getCrossChainRebalancing(walletAddress, allocationMap);
-    res.json(rebalancing);
+    return sendSuccess(res, rebalancing);
   } catch (error) {
-    res.status(500).json({ error: 'Cross-chain rebalancing failed' });
+    return sendError(res, error, 'Cross-chain rebalancing failed');
   }
 });
 
 // Gaming Treasury Operation endpoint
 app.post('/api/game-treasury-operation', async (req, res) => {
   try {
-    const { gameId, playerId, operation, amount, tokenType, metadata } = req.body;
+    const parsed = gameTreasuryOperationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { gameId, playerId, operation, amount, tokenType, metadata } = parsed.data;
     const result = await treasuryAgent.processGameTreasuryOperation(
       gameId, playerId, operation, amount, tokenType, metadata
     );
-    res.json(result);
+    return sendSuccess(res, result);
   } catch (error) {
-    res.status(500).json({ error: 'Game treasury operation failed' });
+    return sendError(res, error, 'Game treasury operation failed');
   }
 });
 
 // Player Wallet Creation endpoint
 app.post('/api/create-player-wallet', async (req, res) => {
   try {
-    const { playerId, gameId } = req.body;
+    const parsed = createWalletSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { playerId, gameId } = parsed.data;
     const wallet = await treasuryAgent.createPlayerWallet(playerId, gameId);
-    res.json(wallet);
+    return sendSuccess(res, wallet);
   } catch (error) {
-    res.status(500).json({ error: 'Player wallet creation failed' });
+    return sendError(res, error, 'Player wallet creation failed');
   }
 });
 
 // Player Authentication endpoint
 app.post('/api/authenticate-player', async (req, res) => {
   try {
-    const { token } = req.body;
+    const parsed = authenticatePlayerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { token } = parsed.data;
     const auth = await treasuryAgent.authenticatePlayer(token);
-    res.json(auth);
+    return sendSuccess(res, auth);
   } catch (error) {
-    res.status(500).json({ error: 'Player authentication failed' });
+    return sendError(res, error, 'Player authentication failed');
   }
 });
 
 // MCP Agent Communication endpoint
 app.post('/api/mcp-agent-communication', async (req, res) => {
   try {
-    const { targetAgent, method, params } = req.body;
+    const parsed = mcpCommunicationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendValidationError(res, parsed.error);
+    }
+
+    const { targetAgent, method, params } = parsed.data;
     const response = await treasuryAgent.communicateMCPAgent(targetAgent, method, params);
-    res.json(response);
+    return sendSuccess(res, response);
   } catch (error) {
-    res.status(500).json({ error: 'MCP agent communication failed' });
+    return sendError(res, error, 'MCP agent communication failed');
   }
 });
 
 // Gaming Treasury Analytics endpoint
-app.get('/api/game-treasury-analytics/:gameId', async (req, res) => {
+app.get('/api/game-treasury-analytics/:gameId', shortCache, async (req, res) => {
   try {
     const { gameId } = req.params;
     const analytics = await treasuryAgent.getGameTreasuryAnalytics(gameId);
-    res.json(analytics);
+    return sendSuccess(res, analytics);
   } catch (error) {
-    res.status(500).json({ error: 'Gaming treasury analytics failed' });
+    return sendError(res, error, 'Gaming treasury analytics failed');
   }
 });
 
 // Metachin Optimization endpoint
-app.get('/api/metachin-optimization', async (req, res) => {
+app.get('/api/metachin-optimization', shortCache, async (req, res) => {
   try {
     const optimization = await treasuryAgent.optimizeMetachainScaling();
-    res.json(optimization);
+    return sendSuccess(res, optimization);
   } catch (error) {
-    res.status(500).json({ error: 'Metachin optimization failed' });
+    return sendError(res, error, 'Metachin optimization failed');
   }
 });
 
 // DEGA Service Status endpoint
-app.get('/api/dega-service-status', async (req, res) => {
+app.get('/api/dega-service-status', shortCache, async (req, res) => {
   try {
     const status = treasuryAgent.getDEGAServiceStatus();
-    res.json(status);
+    return sendSuccess(res, status);
   } catch (error) {
-    res.status(500).json({ error: 'DEGA service status failed' });
+    return sendError(res, error, 'DEGA service status failed');
   }
 });
 
 // Performance monitoring endpoint
-app.get('/api/system/performance', (req, res) => {
+app.get('/api/system/performance', telemetryCache, (req, res) => {
   try {
-    const metrics = {
-      status: 'operational',
+    const metrics = performanceMonitor.getMetrics();
+    return sendSuccess(res, {
+      status: metrics.systemHealth,
       timestamp: new Date().toISOString(),
       performance: {
-        memory: process.memoryUsage(),
-        uptime: Math.floor(process.uptime()),
-        version: process.version,
-        platform: process.platform
+        memory: metrics.memory,
+        uptime: metrics.uptime,
+        responseTime: metrics.responseTime,
+        cache: metrics.cacheStats,
+        errorRate: metrics.errorRate,
+        node: {
+          version: process.version,
+          platform: process.platform
+        }
       },
       features: {
-        totalEndpoints: 23, // Updated count
+        totalEndpoints: 23,
         activeServices: ['Treasury', 'AI-ML', 'CrossChain', 'DEGA-MCP'],
         security: ['Helmet', 'CORS'],
-        optimization: ['Compression', 'Static-File-Caching']
+        optimization: ['Compression', 'Static-File-Caching', 'Adaptive-Caching']
       }
-    };
-    
-    res.json(metrics);
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Performance monitoring failed' });
+    return sendError(res, error, 'Performance monitoring failed');
   }
 });
 
 // System health check endpoint
-app.get('/api/system/health', (req, res) => {
+app.get('/api/system/health', telemetryCache, (req, res) => {
+  const healthStatus = performanceMonitor.getHealthStatus();
   const health = {
-    status: 'healthy',
+    status: healthStatus.status,
+    message: healthStatus.message,
     timestamp: new Date().toISOString(),
     services: {
       treasury: 'operational',
@@ -301,46 +484,45 @@ app.get('/api/system/health', (req, res) => {
     uptime: `${Math.floor(process.uptime())} seconds`
   };
   
-  res.json(health);
+  return sendSuccess(res, health);
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(config.server.port, () => {
   console.log('');
   console.log('🚀 PrivacyTreasuryAI Server Started!');
-  console.log(`📡 API available at: http://localhost:${PORT}`);
+  console.log(`📡 API available at: http://localhost:${config.server.port}`);
   console.log('');
   console.log('🧪 Core Treasury Endpoints:');
-  console.log(`   GET  http://localhost:${PORT}/`);
-  console.log(`   POST http://localhost:${PORT}/api/analyze-portfolio`);
-  console.log(`   POST http://localhost:${PORT}/api/private-transaction`);
-  console.log(`   POST http://localhost:${PORT}/api/ai-recommendations`);
-  console.log(`   POST http://localhost:${PORT}/api/simulate-rebalance`);
-  console.log(`   POST http://localhost:${PORT}/api/agent-communication`);
+  console.log(`   GET  http://localhost:${config.server.port}/`);
+  console.log(`   POST http://localhost:${config.server.port}/api/analyze-portfolio`);
+  console.log(`   POST http://localhost:${config.server.port}/api/private-transaction`);
+  console.log(`   POST http://localhost:${config.server.port}/api/ai-recommendations`);
+  console.log(`   POST http://localhost:${config.server.port}/api/simulate-rebalance`);
+  console.log(`   POST http://localhost:${config.server.port}/api/agent-communication`);
   console.log('');
   console.log('🤖 Advanced ML Endpoints:');
-  console.log(`   POST http://localhost:${PORT}/api/ml-optimization`);
-  console.log(`   POST http://localhost:${PORT}/api/risk-assessment`);
-  console.log(`   POST http://localhost:${PORT}/api/yield-optimization`);
-  console.log(`   GET  http://localhost:${PORT}/api/correlation-analysis`);
+  console.log(`   POST http://localhost:${config.server.port}/api/ml-optimization`);
+  console.log(`   POST http://localhost:${config.server.port}/api/risk-assessment`);
+  console.log(`   POST http://localhost:${config.server.port}/api/yield-optimization`);
+  console.log(`   GET  http://localhost:${config.server.port}/api/correlation-analysis`);
   console.log('');
   console.log('🌉 Cross-Chain Endpoints:');
-  console.log(`   POST http://localhost:${PORT}/api/multi-chain-balances`);
-  console.log(`   POST http://localhost:${PORT}/api/cross-chain-bridge`);
-  console.log(`   GET  http://localhost:${PORT}/api/gas-optimization`);
-  console.log(`   POST http://localhost:${PORT}/api/cross-chain-rebalancing`);
+  console.log(`   POST http://localhost:${config.server.port}/api/multi-chain-balances`);
+  console.log(`   POST http://localhost:${config.server.port}/api/cross-chain-bridge`);
+  console.log(`   GET  http://localhost:${config.server.port}/api/gas-optimization`);
+  console.log(`   POST http://localhost:${config.server.port}/api/cross-chain-rebalancing`);
   console.log('');
   console.log('🎮 DEGA MCP Gaming Endpoints:');
-  console.log(`   POST http://localhost:${PORT}/api/game-treasury-operation`);
-  console.log(`   POST http://localhost:${PORT}/api/create-player-wallet`);
-  console.log(`   POST http://localhost:${PORT}/api/authenticate-player`);
-  console.log(`   POST http://localhost:${PORT}/api/mcp-agent-communication`);
-  console.log(`   GET  http://localhost:${PORT}/api/game-treasury-analytics/:gameId`);
-  console.log(`   GET  http://localhost:${PORT}/api/metachin-optimization`);
-  console.log(`   GET  http://localhost:${PORT}/api/dega-service-status`);
+  console.log(`   POST http://localhost:${config.server.port}/api/game-treasury-operation`);
+  console.log(`   POST http://localhost:${config.server.port}/api/create-player-wallet`);
+  console.log(`   POST http://localhost:${config.server.port}/api/authenticate-player`);
+  console.log(`   POST http://localhost:${config.server.port}/api/mcp-agent-communication`);
+  console.log(`   GET  http://localhost:${config.server.port}/api/game-treasury-analytics/:gameId`);
+  console.log(`   GET  http://localhost:${config.server.port}/api/metachin-optimization`);
+  console.log(`   GET  http://localhost:${config.server.port}/api/dega-service-status`);
   console.log('');
   console.log('🔗 Tech Stack: Midnight | ElizaOS | DEGA MCP');
   console.log('🎯 Status: Day 2 DEGA MCP Integration Complete!');
-  console.log('🏆 Total API Endpoints: 21 | Total Features: 17+');
+  console.log('🏆 Total API Endpoints: 23 | Total Features: 17+');
   console.log('');
 });

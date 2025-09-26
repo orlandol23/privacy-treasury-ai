@@ -1,13 +1,13 @@
 # ========================================
 # PrivacyTreasuryAI API Endpoint Testing Script
-# Testing all 21 endpoints systematically
+# Testing all 23 endpoints systematically
 # ========================================
 
 $baseUrl = "http://localhost:3001"
 $testResults = @()
 
 Write-Host "🧪 Starting Comprehensive API Testing..." -ForegroundColor Green
-Write-Host "🚀 PrivacyTreasuryAI - Testing 21 Endpoints" -ForegroundColor Yellow
+Write-Host "🚀 PrivacyTreasuryAI - Testing 23 Endpoints" -ForegroundColor Yellow
 Write-Host "=" * 50
 
 # Helper function to test endpoints
@@ -32,6 +32,14 @@ function Test-Endpoint {
             $response = Invoke-RestMethod -Uri "$baseUrl$endpoint" -Method $method -Body $jsonBody -Headers $headers -TimeoutSec 30
         } else {
             $response = Invoke-RestMethod -Uri "$baseUrl$endpoint" -Method $method -Headers $headers -TimeoutSec 30
+        }
+
+        if ($response -and ($response.PSObject.Properties.Name -contains 'success') -and -not $response.success) {
+            $failureMessage = $response.error
+            if ($response.PSObject.Properties.Name -contains 'details') {
+                $failureMessage = "$failureMessage | $($response.details)"
+            }
+            throw "API returned success=false: $failureMessage"
         }
         
         Write-Host "   ✅ SUCCESS" -ForegroundColor Green
@@ -68,7 +76,7 @@ Test-Endpoint -method "GET" -endpoint "/" -description "Homepage"
 
 # Test 2: Portfolio Analysis
 $portfolioData = @{
-    portfolio = @(
+    assets = @(
         @{ symbol = "ETH"; amount = 10; valueUSD = 16000 },
         @{ symbol = "USDC"; amount = 10000; valueUSD = 10000 },
         @{ symbol = "MATIC"; amount = 5000; valueUSD = 3500 }
@@ -96,7 +104,7 @@ $marketData = @{
         trend = "BULLISH"
         fear_greed_index = 75
     }
-    portfolio = @(
+    currentAllocation = @(
         @{ symbol = "ETH"; amount = 10; valueUSD = 16000 },
         @{ symbol = "USDC"; amount = 10000; valueUSD = 10000 }
     )
@@ -178,7 +186,7 @@ $bridgeData = @{
     toChain = "polygon"
     asset = "USDC"
     amount = 1000
-    recipient = "0x1234567890123456789012345678901234567890"
+    recipientAddress = "0x1234567890123456789012345678901234567890"
 }
 Test-Endpoint -method "POST" -endpoint "/api/cross-chain-bridge" -body $bridgeData -description "Cross-Chain Bridge"
 
@@ -198,11 +206,22 @@ $crossChainRebalanceData = @{
 Test-Endpoint -method "POST" -endpoint "/api/cross-chain-rebalancing" -body $crossChainRebalanceData -description "Cross-Chain Rebalancing"
 
 # ========================================
-# 4. DEGA MCP GAMING ENDPOINTS (7)
+# 4. SYSTEM OBSERVABILITY ENDPOINTS (2)
+# ========================================
+Write-Host "📈 TESTING SYSTEM OBSERVABILITY ENDPOINTS" -ForegroundColor Magenta
+
+# Test 15: System Performance
+Test-Endpoint -method "GET" -endpoint "/api/system/performance" -description "System Performance Metrics"
+
+# Test 16: System Health
+Test-Endpoint -method "GET" -endpoint "/api/system/health" -description "System Health Status"
+
+# ========================================
+# 5. DEGA MCP GAMING ENDPOINTS (7)
 # ========================================
 Write-Host "🎮 TESTING DEGA MCP GAMING ENDPOINTS" -ForegroundColor Magenta
 
-# Test 15: Game Treasury Operation
+# Test 17: Game Treasury Operation
 $gameOpData = @{
     gameId = "dega-rpg-01"
     playerId = "player123"
@@ -210,22 +229,22 @@ $gameOpData = @{
     amount = 100
     tokenType = "DEGA"
 }
-Test-Endpoint -method "POST" -endpoint "/api/dega/game-operation" -body $gameOpData -description "Game Treasury Operation"
+Test-Endpoint -method "POST" -endpoint "/api/game-treasury-operation" -body $gameOpData -description "Game Treasury Operation"
 
-# Test 16: Create Player Wallet
+# Test 18: Create Player Wallet
 $walletCreateData = @{
     playerId = "newplayer456"
     gameId = "dega-rpg-01"
 }
-Test-Endpoint -method "POST" -endpoint "/api/dega/create-wallet" -body $walletCreateData -description "Create Player Wallet"
+Test-Endpoint -method "POST" -endpoint "/api/create-player-wallet" -body $walletCreateData -description "Create Player Wallet"
 
-# Test 17: Authenticate Player
+# Test 19: Authenticate Player
 $authData = @{
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test"
 }
-Test-Endpoint -method "POST" -endpoint "/api/dega/authenticate" -body $authData -description "Authenticate Player"
+Test-Endpoint -method "POST" -endpoint "/api/authenticate-player" -body $authData -description "Authenticate Player"
 
-# Test 18: MCP Agent Communication
+# Test 20: MCP Agent Communication
 $mcpData = @{
     targetAgent = "GameAnalyticsAgent"
     method = "gaming.treasury.balance"
@@ -233,19 +252,16 @@ $mcpData = @{
         playerId = "player123"
     }
 }
-Test-Endpoint -method "POST" -endpoint "/api/dega/mcp-communicate" -body $mcpData -description "MCP Agent Communication"
+Test-Endpoint -method "POST" -endpoint "/api/mcp-agent-communication" -body $mcpData -description "MCP Agent Communication"
 
-# Test 19: Gaming Analytics
-$analyticsData = @{
-    gameId = "dega-rpg-01"
-}
-Test-Endpoint -method "POST" -endpoint "/api/dega/analytics" -body $analyticsData -description "Gaming Analytics"
+# Test 21: Gaming Analytics
+Test-Endpoint -method "GET" -endpoint "/api/game-treasury-analytics/dega-rpg-01" -description "Gaming Analytics"
 
-# Test 20: Metachin Optimization
-Test-Endpoint -method "POST" -endpoint "/api/dega/metachin-optimize" -description "Metachin Optimization"
+# Test 22: Metachin Optimization
+Test-Endpoint -method "GET" -endpoint "/api/metachin-optimization" -description "Metachin Optimization"
 
-# Test 21: DEGA Service Status
-Test-Endpoint -method "GET" -endpoint "/api/dega/status" -description "DEGA Service Status"
+# Test 23: DEGA Service Status
+Test-Endpoint -method "GET" -endpoint "/api/dega-service-status" -description "DEGA Service Status"
 
 # ========================================
 # TEST RESULTS SUMMARY

@@ -2,10 +2,10 @@
 ### Save this file as test-api.http and use with REST Client extension in VS Code
 
 ### Test basic health check
-GET http://localhost:3000/
+GET http://localhost:3001/
 
 ### Analyze portfolio
-POST http://localhost:3000/api/analyze-portfolio
+POST http://localhost:3001/api/analyze-portfolio
 Content-Type: application/json
 
 {
@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 
 ### Create private transaction
-POST http://localhost:3000/api/private-transaction
+POST http://localhost:3001/api/private-transaction
 Content-Type: application/json
 
 {
@@ -40,7 +40,7 @@ Content-Type: application/json
 }
 
 ### Get AI recommendations
-POST http://localhost:3000/api/ai-recommendations
+POST http://localhost:3001/api/ai-recommendations
 Content-Type: application/json
 
 {
@@ -71,7 +71,7 @@ Content-Type: application/json
 }
 
 ### Simulate rebalancing
-POST http://localhost:3000/api/simulate-rebalance
+POST http://localhost:3001/api/simulate-rebalance
 Content-Type: application/json
 
 {
@@ -109,7 +109,7 @@ Content-Type: application/json
 }
 
 ### Test agent communication
-POST http://localhost:3000/api/agent-communication
+POST http://localhost:3001/api/agent-communication
 Content-Type: application/json
 
 {

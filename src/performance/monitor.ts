@@ -1,6 +1,8 @@
 // Performance monitoring and health check endpoint
 // Provides real-time system performance metrics
 
+import type { Request, Response, NextFunction } from 'express';
+
 export interface PerformanceMetrics {
   memory: NodeJS.MemoryUsage;
   uptime: number;
@@ -162,7 +164,7 @@ class PerformanceMonitor {
 export const performanceMonitor = new PerformanceMonitor();
 
 // Enhanced performance middleware with monitoring
-export const enhancedPerformanceMiddleware = (req: any, res: any, next: any) => {
+export const enhancedPerformanceMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   
   res.on('finish', () => {

@@ -35,11 +35,17 @@ All API responses follow this standard format:
 Error responses:
 ```json
 {
-  "error": "Error message",
-  "statusCode": 400,
-  "timestamp": "2025-09-26T14:41:11.417Z"
+  "success": false,
+  "error": "Invalid request payload",
+  "details": {
+    "fieldErrors": { "assets": ["At least one asset is required"] }
+  },
+  "timestamp": "2025-09-26T14:41:11.417Z",
+  "version": "1.0.0"
 }
 ```
+
+_Endpoint examples below showcase the structure of the `data` object returned inside the success envelope._
 
 ---
 
@@ -123,31 +129,29 @@ Create privacy-preserving transactions using Midnight's zero-knowledge proofs.
   "from": "0xDAO_Treasury_Address",
   "to": "0xRecipient_Address",
   "amount": 1000,
-  "assetType": "USDC",
-  "privateMetadata": {
-    "reason": "Strategic investment",
-    "category": "Investment",
-    "confidentialityLevel": "HIGH"
-  }
+  "assetType": "USDC"
 }
 ```
 
 **Response:**
 ```json
 {
-  "transactionId": "0x1234567890abcdef...",
+  "transactionId": "txn_midnight_123",
   "status": "pending",
-  "zkProof": {
-    "proofHash": "0xproof123...",
-    "verificationKey": "vk_abc123...",
-    "commitment": "0xcommit456..."
-  },
-  "selectiveDisclosure": {
+  "type": "shielded",
+  "zkProof": "zk_proof_af83b2d7d9c6f3387",
+  "midnightProtocol": true,
+  "publicData": {
     "timestamp": "2025-09-26T14:41:11.417Z",
-    "amount": "***HIDDEN***",
-    "recipient": "***HIDDEN***"
+    "assetType": "USDC",
+    "network": "midnight-testnet",
+    "privacyLevel": "full"
   },
-  "estimatedConfirmation": "2-5 minutes"
+  "privateData": {
+    "encrypted": true,
+    "protocol": "Midnight ZK-SNARK",
+    "message": "Transaction data protected by zero-knowledge proofs"
+  }
 }
 ```
 
@@ -357,27 +361,27 @@ Calculate comprehensive risk metrics including VaR and Expected Shortfall.
 **Response:**
 ```json
 {
-  "riskMetrics": {
+  "riskAssessment": {
+    "concentrationRisk": 0.82,
+    "assetRisks": [
+      {
+        "symbol": "ETH",
+        "riskScore": 0.68,
+        "allocation": 61.5,
+        "contribution": 0.42
+      }
+    ],
+    "portfolioBeta": 1.15,
     "valueAtRisk": {
-      "95%": 2340.50,
-      "99%": 4120.75
+      "confidence": 0.95,
+      "amountUSD": 2340.5
     },
     "expectedShortfall": {
-      "95%": 3120.25,
-      "99%": 5450.80
-    },
-    "portfolioBeta": 1.15,
-    "volatility": {
-      "daily": 4.2,
-      "annualized": 78.5
-    },
-    "herfindahlIndex": 0.85,
-    "diversificationRatio": 0.72
+      "confidence": 0.95,
+      "amountUSD": 3120.25
+    }
   },
-  "recommendations": [
-    "High concentration risk detected",
-    "Consider diversification to reduce VaR"
-  ]
+  "message": "Advanced risk assessment completed"
 }
 ```
 
@@ -399,25 +403,27 @@ Find optimal DeFi yield strategies across protocols.
 **Response:**
 ```json
 {
-  "strategies": [
+  "yieldOpportunities": [
     {
+      "symbol": "ETH",
       "protocol": "Aave",
-      "asset": "USDC",
-      "apy": 12.5,
-      "riskScore": 3,
-      "allocation": 15000
-    },
-    {
-      "protocol": "Compound",
-      "asset": "ETH",
-      "apy": 8.7,
-      "riskScore": 5,
-      "allocation": 20000
+      "apy": 0.087,
+      "allocationUSD": 20000,
+      "riskLevel": "moderate"
     }
   ],
-  "totalExpectedYield": 4850.75,
-  "averageAPY": 9.7,
-  "riskAdjustedReturn": 8.2
+  "allocation": [
+    { "symbol": "ETH", "percentage": 40 },
+    { "symbol": "USDC", "percentage": 35 },
+    { "symbol": "MATIC", "percentage": 25 }
+  ],
+  "strategy": "moderate",
+  "context": {
+    "riskLevel": "MODERATE",
+    "totalAmount": 50000,
+    "protocols": ["compound", "aave", "curve"]
+  },
+  "message": "Yield optimization completed successfully"
 }
 ```
 
@@ -430,15 +436,14 @@ Get asset correlation matrix for diversification analysis.
 ```json
 {
   "correlationMatrix": {
-    "ETH": { "ETH": 1.0, "BTC": 0.85, "USDC": 0.12 },
-    "BTC": { "ETH": 0.85, "BTC": 1.0, "USDC": 0.08 },
-    "USDC": { "ETH": 0.12, "BTC": 0.08, "USDC": 1.0 }
+    "matrix": {
+      "ETH": { "ETH": 1.0, "BTC": 0.85, "USDC": -0.05 },
+      "BTC": { "ETH": 0.85, "BTC": 1.0, "USDC": -0.02 },
+      "USDC": { "ETH": -0.05, "BTC": -0.02, "USDC": 1.0 }
+    },
+    "diversificationRatio": 0.74
   },
-  "diversificationScore": 78.5,
-  "recommendations": [
-    "ETH and BTC show high correlation (0.85)",
-    "Consider adding uncorrelated assets"
-  ]
+  "message": "Correlation analysis completed successfully"
 }
 ```
 
@@ -462,21 +467,22 @@ Retrieve asset balances across multiple blockchain networks.
 **Response:**
 ```json
 {
-  "balances": {
-    "ethereum": {
-      "ETH": { "amount": 5.25, "valueUSD": 8400 },
-      "USDC": { "amount": 15000, "valueUSD": 15000 }
-    },
-    "polygon": {
-      "MATIC": { "amount": 10000, "valueUSD": 7000 },
-      "USDC": { "amount": 5000, "valueUSD": 5000 }
-    }
+  "walletAddress": "0x1234567890123456789012345678901234567890",
+  "multiChainPortfolio": {
+    "totalValueUSD": 35400,
+    "chainsUsed": 3,
+    "uniqueAssets": 6,
+    "diversificationRating": "A-",
+    "assets": [
+      {
+        "symbol": "ETH",
+        "chains": [
+          { "chain": "ethereum", "amount": 5.25, "valueUSD": 8400 }
+        ]
+      }
+    ]
   },
-  "totalValueUSD": 35400,
-  "chainDistribution": {
-    "ethereum": 66.1,
-    "polygon": 33.9
-  }
+  "message": "Found assets across 3 chains"
 }
 ```
 
@@ -492,7 +498,7 @@ Execute cross-chain asset transfers with optimization.
   "toChain": "polygon",
   "asset": "USDC",
   "amount": 1000,
-  "recipient": "0x1234567890123456789012345678901234567890",
+  "recipientAddress": "0x1234567890123456789012345678901234567890",
   "priority": "STANDARD"
 }
 ```
@@ -500,16 +506,19 @@ Execute cross-chain asset transfers with optimization.
 **Response:**
 ```json
 {
-  "bridgeTransaction": {
-    "transactionId": "0xbridge123...",
+  "bridgeOperation": {
+    "id": "bridge_123",
+    "fromChain": "ethereum",
+    "toChain": "polygon",
+    "asset": "USDC",
+    "amount": 1000,
     "estimatedTime": "15-30 minutes",
-    "bridgeFee": 5.50,
-    "gasFee": 12.30,
-    "totalCost": 17.80,
-    "exchangeRate": 0.9995
+    "fees": {
+      "bridgeFeeUSD": 5.5,
+      "gasFeeUSD": 12.3
+    }
   },
-  "status": "initiated",
-  "trackingUrl": "https://bridge-tracker.com/tx/0xbridge123"
+  "message": "Bridge operation initiated: bridge_123"
 }
 ```
 
@@ -522,22 +531,25 @@ Get optimized gas prices across networks.
 ```json
 {
   "gasOptimization": {
-    "ethereum": {
-      "slow": { "gwei": 25, "time": "5-10 min", "costUSD": 3.20 },
-      "standard": { "gwei": 35, "time": "2-5 min", "costUSD": 4.48 },
-      "fast": { "gwei": 50, "time": "< 2 min", "costUSD": 6.40 }
+    "optimization": {
+      "ethereum": {
+        "currentGwei": 25,
+        "recommendedGwei": 20,
+        "savings": "20%",
+        "optimalTime": "2:30 PM UTC"
+      },
+      "polygon": {
+        "currentGwei": 35,
+        "recommendedGwei": 30,
+        "savings": "14%",
+        "optimalTime": "3:45 AM UTC"
+      }
     },
-    "polygon": {
-      "slow": { "gwei": 30, "time": "2-3 min", "costUSD": 0.05 },
-      "standard": { "gwei": 40, "time": "1-2 min", "costUSD": 0.07 },
-      "fast": { "gwei": 60, "time": "< 1 min", "costUSD": 0.10 }
-    }
+    "recommendation": "Best time to transact: Arbitrum (now), then Polygon (early morning UTC)",
+    "totalSavings": "$12.50 estimated across all chains",
+    "timestamp": "2025-09-26T14:41:11.417Z"
   },
-  "recommendations": {
-    "bestChainForSmallTx": "polygon",
-    "bestChainFor LargeTx": "arbitrum",
-    "cheapestTime": "2-4 AM UTC"
-  }
+  "message": "Gas optimization analysis completed"
 }
 ```
 
@@ -757,18 +769,9 @@ Communicate with MCP agents in the gaming ecosystem.
 ```
 
 ### 19. Gaming Analytics  
-**`POST /api/game-treasury-analytics`**
+**`GET /api/game-treasury-analytics/:gameId`**
 
-Generate comprehensive gaming analytics.
-
-**Request:**
-```json
-{
-  "gameId": "dega-rpg-01",
-  "timeRange": "7_DAYS",
-  "metrics": ["players", "volume", "revenue", "retention"]
-}
-```
+Retrieve comprehensive gaming analytics for a specific game ID.
 
 **Response:**
 ```json
@@ -798,7 +801,7 @@ Generate comprehensive gaming analytics.
 ```
 
 ### 20. Metachin Optimization
-**`POST /api/metachin-optimization`**
+**`GET /api/metachin-optimization`**
 
 Optimize gaming operations using metachin scaling.
 
@@ -840,7 +843,6 @@ Check DEGA service status and system health.
 **Response:**
 ```json
 {
-  "success": true,
   "timestamp": "2025-09-26T14:41:11.417Z",
   "status": {
     "service": "DEGA MCP Service",
@@ -885,8 +887,20 @@ Real-time system performance metrics.
       "arrayBuffers": 163472
     },
     "uptime": 3600,
-    "version": "v18.17.0",
-    "platform": "win32"
+    "responseTime": {
+      "p50": 42,
+      "p95": 118
+    },
+    "cache": {
+      "hits": 128,
+      "misses": 24,
+      "hitRate": 0.84
+    },
+    "errorRate": 0.01,
+    "node": {
+      "version": "v18.17.0",
+      "platform": "win32"
+    }
   },
   "features": {
     "totalEndpoints": 23,
@@ -906,6 +920,7 @@ System health check and service status.
 ```json
 {
   "status": "healthy",
+  "message": "All systems operational",
   "timestamp": "2025-09-26T14:41:11.417Z",
   "services": {
     "treasury": "operational",
