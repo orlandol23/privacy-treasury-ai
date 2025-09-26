@@ -1,11 +1,14 @@
-# PrivacyTreasuryAI 🤖🔐
+# 🤖 PrivacyTreasuryAI
 
-AI-powered DAO Treasury Management with Privacy-First Design on Midnight Blockchain
+> **AI-Powered DAO Treasury Management with Zero-Knowledge Privacy**
 
-## 🚀 DEGA Hackathon Submission
+[![DEGA Hackathon](https://img.shields.io/badge/DEGA-Hackathon%20Submission-blue)](https://dorahacks.io/hackathon/dega)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.0+-green.svg)](https://nodejs.org/)
+[![Midnight](https://img.shields.io/badge/Midnight-Blockchain-purple.svg)](https://midnight.network/)
+[![ElizaOS](https://img.shields.io/badge/ElizaOS-AI%20Agents-orange.svg)](https://elizaos.com/)
 
-### Overview
-PrivacyTreasuryAI revolutionizes DAO treasury management by combining artificial intelligence with zero-knowledge privacy. Built on Midnight blockchain and powered by ElizaOS agents, our solution addresses the $35B+ DAO treasury market's critical needs for automated, intelligent, and private financial operations.
+PrivacyTreasuryAI revolutionizes DAO treasury management by combining intelligent AI decision-making with privacy-preserving blockchain transactions. Built for the DEGA Hackathon, it showcases innovative integration of ElizaOS agents, Midnight blockchain privacy, and DEGA MCP gaming protocols.
 
 ### 🎯 Problem Statement  
 DAOs currently manage over $35 billion in assets with:

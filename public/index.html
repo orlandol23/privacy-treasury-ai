@@ -337,6 +337,119 @@
             letter-spacing: 0.5px;
         }
         
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f4fd, #d4eed9);
+            border-radius: 8px;
+            color: #2d5aa0;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Success States */
+        .success {
+            background: linear-gradient(135deg, #d4eed9, #c6f6d5);
+            border: 1px solid #68d391;
+            color: #22543d;
+        }
+        
+        /* Error States */
+        .error {
+            background: linear-gradient(135deg, #fed7d7, #fbb6ce);
+            border: 1px solid #fc8181;
+            color: #742a2a;
+        }
+        
+        /* Button Loading States */
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Enhanced Card Hover Effects */
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* Progress Indicators */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #63b3ed);
+            transition: width 0.3s ease;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: #48bb78;
+        }
+        
+        .toast.error {
+            background: #f56565;
+        }
+        
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -1405,10 +1518,59 @@
             document.getElementById('riskValue').textContent = this.value;
         });
 
+        // Utility Functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Hide and remove toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+        
+        function setButtonLoading(button, loading, originalText) {
+            if (loading) {
+                button.classList.add('btn-loading');
+                button.disabled = true;
+                button.setAttribute('data-original-text', originalText);
+                button.textContent = 'Processing...';
+            } else {
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+                button.textContent = button.getAttribute('data-original-text') || originalText;
+            }
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+        
+        function formatNumber(number, decimals = 2) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            }).format(number);
+        }
+
         // Initialize
         checkStatus();
         updateStats();
         setInterval(checkStatus, 5000); // Check status every 5 seconds
+        
+        // Show welcome message
+        setTimeout(() => {
+            showToast('🤖 PrivacyTreasuryAI loaded successfully!', 'success');
+        }, 1000);
     </script>
 </body>
 </html>
