@@ -19,18 +19,18 @@ const formatStatusLabel = (status) => {
   const normalized = String(status || '').toLowerCase()
   switch (normalized) {
     case 'excellent':
-      return 'Excelente'
+      return 'Excellent'
     case 'good':
-      return 'Bom'
+      return 'Good'
     case 'warning':
-      return 'Alerta'
+      return 'Warning'
     case 'critical':
-      return 'Crítico'
+      return 'Critical'
     case 'operational':
     case 'online':
-      return 'Operacional'
+      return 'Operational'
     case 'degraded':
-      return 'Degradado'
+      return 'Degraded'
     default:
       return status ?? '—'
   }
@@ -47,7 +47,7 @@ const Dashboard = () => {
   const marketSignals = derived?.marketSignals ?? []
   const systemStatus = derived?.systemStatus ?? {}
 
-  const formattedLastUpdated = lastUpdated ? new Date(lastUpdated).toLocaleString('pt-BR') : null
+  const formattedLastUpdated = lastUpdated ? new Date(lastUpdated).toLocaleString('en-US') : null
 
   const serviceStatuses = [
     {
@@ -80,7 +80,7 @@ const Dashboard = () => {
 
   const statusColor = (status) => {
     const normalized = String(status || '').toLowerCase()
-    if (['operational', 'online', 'ativo', 'excellent', 'good'].includes(normalized)) {
+    if (['operational', 'online', 'active', 'excellent', 'good'].includes(normalized)) {
       return 'treasury-status-success'
     }
     if (['warning', 'degraded', 'partial'].includes(normalized)) {
@@ -100,7 +100,7 @@ const Dashboard = () => {
             Dashboard do Tesouro
           </h1>
           <p className="text-muted-foreground">
-            Monitoramento em tempo real de alocação, risco, IA e operações multi-chain
+            Real-time monitoring of allocation, risk, AI and multi-chain operations
           </p>
         </div>
         <div className="flex items-center gap-3">

@@ -19,7 +19,7 @@ const Header = () => {
       <div className="flex-1 max-w-md mx-8">
         <input
           type="text"
-          placeholder="Buscar transações, ativos ou propostas..."
+          placeholder="Search transactions, assets or proposals..."
           className="treasury-input w-full"
         />
       </div>

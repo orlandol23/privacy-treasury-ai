@@ -25,7 +25,7 @@ const Sidebar = () => {
       id: 'portfolio',
       label: 'Portfólio',
       icon: PieChart,
-      description: 'Alocação de ativos'
+      description: 'Asset allocation'
     },
     {
       id: 'transactions',

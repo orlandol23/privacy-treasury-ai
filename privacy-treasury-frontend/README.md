@@ -1,48 +1,48 @@
 # PrivacyTreasuryAI - Frontend
 
-Este diretório contém o frontend completamente redesenhado para o projeto PrivacyTreasuryAI. Construído com React, Vite, Tailwind CSS e shadcn/ui, ele oferece uma interface de usuário moderna, responsiva e alinhada com os princípios de design "privacy-first" definidos para a hackathon DEGA.
+This directory contains the completely redesigned frontend for the PrivacyTreasuryAI project. Built with React, Vite, Tailwind CSS, and shadcn/ui, it provides a modern, responsive user interface aligned with the "privacy-first" design principles established for the DEGA hackathon.
 
-> **Pré-requisitos**
+> **Prerequisites**
 >
-> - Node.js 18 ou superior
-> - pnpm 8+ (o monorepo utiliza `pnpm@10` via `packageManager`)
-> - Backend PrivacyTreasuryAI em execução (porta padrão `3001`)
+> - Node.js 18 or higher
+> - pnpm 8+ (the monorepo uses `pnpm@10` via `packageManager`)
+> - PrivacyTreasuryAI backend running (default port `3001`)
 
-## 🚀 Visão Geral
+## 🚀 Overview
 
-O objetivo deste frontend é fornecer uma experiência de usuário (UX) de alta qualidade que seja:
+The goal of this frontend is to provide a high-quality user experience (UX) that is:
 
-- **Intuitiva**: Facilitando a navegação e o acesso a informações complexas sobre o tesouro do DAO.
-- **Informativa**: Apresentando dados de forma clara e visualmente atraente através de dashboards e gráficos.
-- **Segura**: Refletindo a natureza de privacidade do projeto com um tema escuro e profissional.
-- **Pronta para a Demo**: Todos os componentes e layouts necessários para a demonstração da hackathon estão incluídos.
+- **Intuitive**: Facilitating navigation and access to complex DAO treasury information.
+- **Informative**: Presenting data clearly and visually appealing through dashboards and charts.
+- **Secure**: Reflecting the project's privacy nature with a dark and professional theme.
+- **Demo-Ready**: All components and layouts necessary for the hackathon demonstration are included.
 
-### Principais destaques
+### Key Highlights
 
-- 🎨 **Design tokens unificados**: Cores, tipografia, espaçamento e sombras centralizados em `App.css` para manter consistência visual.
-- � **Integração em tempo real**: O hook `useDashboardData` agrega os principais endpoints do backend (`/api/analyze-portfolio`, `/api/ai-recommendations`, `/api/ml-optimization`, entre outros) e aplica retentativas inteligentes.
-- 📊 **Componentes conectados**: Métricas, gráficos, tabelas de transações e fila multi-sig consomem os dados retornados pelo backend com estados de carregamento, erro e quedas parciais.
-- 🔁 **Atualização contínua**: Os dados do dashboard são atualizados automaticamente a cada minuto, com botão manual de refresh.
+- 🎨 **Unified design tokens**: Colors, typography, spacing, and shadows centralized in `App.css` to maintain visual consistency.
+- 🔄 **Real-time integration**: The `useDashboardData` hook aggregates the main backend endpoints (`/api/analyze-portfolio`, `/api/ai-recommendations`, `/api/ml-optimization`, among others) and applies intelligent retries.
+- 📊 **Connected components**: Metrics, charts, transaction tables, and multi-sig queues consume data returned by the backend with loading, error, and partial failure states.
+- 🔁 **Continuous updates**: Dashboard data is automatically updated every minute, with a manual refresh button.
 
-## �🛠️ Tech Stack
+## 🛠️ Tech Stack
 
 - **Framework**: React 19
 - **Build Tool**: Vite
-- **Estilização**: Tailwind CSS
-- **Componentes UI**: shadcn/ui
-- **Ícones**: Lucide React
-- **Gráficos**: Recharts
-- **Animações**: Framer Motion (pré-instalado)
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **Animations**: Framer Motion (pre-installed)
 
-## 📂 Estrutura de Arquivos
+## 📂 File Structure
 
-A estrutura do projeto foi organizada para ser escalável e de fácil manutenção:
+The project structure has been organized to be scalable and easy to maintain:
 
 ```
 /src
-├── assets/           # Imagens, logos e outros ativos estáticos
+├── assets/           # Images, logos and other static assets
 ├── components/
-│   ├── ui/           # Componentes base do shadcn/ui
+│   ├── ui/           # Base shadcn/ui components
 │   ├── AIRecommendations.jsx
 │   ├── Dashboard.jsx
 │   ├── Header.jsx
@@ -51,53 +51,53 @@ A estrutura do projeto foi organizada para ser escalável e de fácil manutenç�
 │   ├── PortfolioChart.jsx
 │   ├── Sidebar.jsx
 │   └── TransactionTable.jsx
-├── hooks/            # Hooks customizados (ex: use-dashboard-data.js)
-├── lib/              # Funções utilitárias (ex: utils.js)
-├── services/         # Lógica de chamada de API (api.js consolidado)
-├── App.css           # Design System e estilos customizados
-├── App.jsx           # Componente principal que monta o layout
-└── main.jsx          # Ponto de entrada da aplicação
+├── hooks/            # Custom hooks (e.g., use-dashboard-data.js)
+├── lib/              # Utility functions (e.g., utils.js)
+├── services/         # API call logic (consolidated api.js)
+├── App.css           # Design System and custom styles
+├── App.jsx           # Main component that mounts the layout
+└── main.jsx          # Application entry point
 ```
 
-## ⚙️ Configuração
+## ⚙️ Configuration
 
-1. **Instale as dependências** (na raiz do monorepo):
+1. **Install dependencies** (in the monorepo root):
 
    ```bash
    pnpm install
    ```
 
-2. **Configure as variáveis de ambiente**:
+2. **Configure environment variables**:
 
    ```bash
    cd privacy-treasury-frontend
    cp .env.example .env
    ```
 
-   Ajuste `VITE_API_BASE_URL` para apontar para a URL do backend (por padrão `http://localhost:3001/api`).
+   Adjust `VITE_API_BASE_URL` to point to the backend URL (default `http://localhost:3001/api`).
 
-3. **Inicie o backend** conforme instruções no diretório raiz do projeto para que o dashboard receba dados reais.
+3. **Start the backend** according to the instructions in the project root directory so the dashboard receives real data.
 
-## 🖥️ Executando o Frontend
+## 🖥️ Running the Frontend
 
-Dentro de `privacy-treasury-frontend`:
+Inside `privacy-treasury-frontend`:
 
 ```bash
 pnpm run dev
 ```
 
-O Vite abrirá a aplicação em `http://localhost:5173` (ou outra porta disponível).
+Vite will open the application at `http://localhost:5173` (or another available port).
 
-## ✅ Verificação e Qualidade
+## ✅ Verification and Quality
 
 - **Lint**: `pnpm run lint`
 - **Build**: `pnpm run build`
 
-Esses comandos já estão configurados para rodar com ESLint 9 e Vite 6.
+These commands are already configured to run with ESLint 9 and Vite 6.
 
-## 🔄 Fluxo de Dados
+## 🔄 Data Flow
 
-O hook `useDashboardData` coordena as chamadas aos principais endpoints para montar o estado do dashboard:
+The `useDashboardData` hook coordinates calls to the main endpoints to build the dashboard state:
 
 - `POST /api/analyze-portfolio`
 - `POST /api/ai-recommendations`
@@ -112,9 +112,9 @@ O hook `useDashboardData` coordena as chamadas aos principais endpoints para mon
 - `GET /api/game-treasury-analytics/:gameId`
 - `GET /api/dega-service-status`
 
-Quando uma dessas chamadas falha, o hook mantém os dados já carregados, registra o erro em `issues` e o Dashboard exibe um alerta não bloqueante para o operador.
+When any of these calls fail, the hook maintains already loaded data, logs the error in `issues`, and the Dashboard displays a non-blocking alert for the operator.
 
-## ✨ Próximos Passos
+## ✨ Next Steps
 
-Consulte o `IMPLEMENTATION_GUIDE.md` para um guia detalhado sobre como integrar este frontend com o seu backend existente, incluindo exemplos de código e prompts para o GitHub Copilot.
+Check the `IMPLEMENTATION_GUIDE.md` for a detailed guide on how to integrate this frontend with your existing backend, including code examples and GitHub Copilot prompts.
 

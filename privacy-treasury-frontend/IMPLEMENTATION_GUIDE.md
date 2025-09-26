@@ -1,60 +1,60 @@
-# Guia de Implementação do Frontend - PrivacyTreasuryAI
+# Frontend Implementation Guide - PrivacyTreasuryAI
 
-Este guia fornece um passo a passo detalhado para substituir o frontend existente do seu projeto `privacy-treasury-ai` pela nova versão otimizada, utilizando o GitHub Copilot para acelerar o processo.
+This guide provides a detailed step-by-step process to replace the existing frontend of your `privacy-treasury-ai` project with the new optimized version, using GitHub Copilot to accelerate the process.
 
-## 🎯 Objetivo
+## 🎯 Objective
 
-O objetivo é migrar a sua aplicação para uma arquitetura de frontend moderna, com um design system coeso, componentes reutilizáveis e uma experiência de usuário aprimorada, pronta para a demo da hackathon.
+The goal is to migrate your application to a modern frontend architecture, with a cohesive design system, reusable components, and an enhanced user experience, ready for the hackathon demo.
 
-## 🛠️ Pré-requisitos
+## 🛠️ Prerequisites
 
-1.  **Node.js e pnpm**: Certifique-se de ter o Node.js (v18+) e o pnpm instalados.
-2.  **Git**: Conhecimento básico de Git para gerenciar as alterações no seu repositório.
-3.  **GitHub Copilot**: Acesso ao GitHub Copilot no seu editor de código (VS Code recomendado).
-4.  **Backend Rodando**: O seu backend (API Express) deve estar rodando localmente para que o frontend possa se conectar a ele.
+1.  **Node.js and pnpm**: Make sure you have Node.js (v18+) and pnpm installed.
+2.  **Git**: Basic Git knowledge to manage changes in your repository.
+3.  **GitHub Copilot**: Access to GitHub Copilot in your code editor (VS Code recommended).
+4.  **Backend Running**: Your backend (Express API) should be running locally so the frontend can connect to it.
 
 ---
 
-## 🚀 Passo a Passo da Implementação
+## 🚀 Step-by-Step Implementation
 
-### Passo 1: Mover o Novo Frontend para o seu Repositório
+### Step 1: Move the New Frontend to Your Repository
 
-1.  **Descompacte** o arquivo `privacy-treasury-frontend.zip` que foi entregue.
-2.  **Copie** o conteúdo da pasta `privacy-treasury-frontend` para uma nova pasta chamada `frontend` na raiz do seu projeto `privacy-treasury-ai`.
+1.  **Extract** the `privacy-treasury-frontend.zip` file that was delivered.
+2.  **Copy** the contents of the `privacy-treasury-frontend` folder to a new folder called `frontend` in the root of your `privacy-treasury-ai` project.
 
-    A sua estrutura de projeto deve ficar assim:
+    Your project structure should look like this:
 
     ```
     privacy-treasury-ai/
-    ├── frontend/         # <-- Novo frontend aqui
-    ├── src/              # Seu backend Express
-    ├── package.json      # package.json do backend
-    └── ...               # Outros arquivos do backend
+    ├── frontend/         # <-- New frontend here
+    ├── src/              # Your Express backend
+    ├── package.json      # Backend package.json
+    └── ...               # Other backend files
     ```
 
-3.  **Navegue** até o novo diretório do frontend e instale as dependências:
+3.  **Navigate** to the new frontend directory and install dependencies:
 
     ```bash
     cd frontend
     pnpm install
     ```
 
-### Passo 2: Conectar o Frontend ao Backend
+### Step 2: Connect Frontend to Backend
 
-O frontend precisa saber onde a sua API está rodando. Vamos configurar isso usando variáveis de ambiente.
+The frontend needs to know where your API is running. Let's configure this using environment variables.
 
-1.  **Crie um arquivo `.env`** na pasta `frontend`.
+1.  **Create a `.env` file** in the `frontend` folder.
 
-2.  **Adicione a URL da sua API** ao arquivo. Por padrão, a sua API Express roda na porta 3001.
+2.  **Add your API URL** to the file. By default, your Express API runs on port 3001.
 
-    **Arquivo: `frontend/.env`**
+    **File: `frontend/.env`**
     ```
     VITE_API_BASE_URL=http://localhost:3001/api
     ```
 
-3.  **Crie um serviço de API** para centralizar as chamadas. Use o prompt a seguir com o GitHub Copilot para criar o arquivo `frontend/src/services/api.js`.
+3.  **Create an API service** to centralize calls. Use the following prompt with GitHub Copilot to create the `frontend/src/services/api.js` file.
 
-    > **Prompt para GitHub Copilot:**
+    > **GitHub Copilot Prompt:**
     > "Create a JavaScript file that exports an Axios instance. The base URL for Axios should be read from the `VITE_API_BASE_URL` environment variable. Also, export functions for each of the main API endpoints in the backend: `analyze-portfolio`, `ai-recommendations`, `private-transaction`, `ml-optimization`, `risk-assessment`, and `yield-optimization`. Each function should take the required payload as an argument and handle potential errors with a try-catch block, logging the error to the console."
 
 ### Passo 3: Integrar os Dados da API nos Componentes
@@ -133,13 +133,4 @@ Se o seu projeto já tinha um frontend, você precisará configurar o seu servid
 
 - **Consistência é Chave**: Utilize as classes de utilitários e componentes customizados definidos em `App.css` (ex: `treasury-card`, `treasury-button-primary`). Isso garante que a UI permaneça consistente.
 - **Responsividade**: Todos os componentes foram construídos com uma abordagem mobile-first usando as classes responsivas do Tailwind CSS (ex: `md:grid-cols-2`, `lg:col-span-2`).
-- **Acessibilidade**: Siga as melhores práticas de acessibilidade, como usar tags semânticas HTML, fornecer atributos `alt` para imagens e garantir que todos os elementos interativos sejam acessíveis via teclado.
-- **Animações Sutis**: Use as animações pré-configuradas (`animate-fade-in-up`, `treasury-hover-lift`) para adicionar um toque de profissionalismo sem sobrecarregar o usuário.
-
-## 🔮 Expansão e Customização
-
-- **Adicionar Novas Páginas**: Para adicionar uma nova página (ex: uma página de "Governança"), crie um novo componente em `src/components`, e use uma biblioteca de roteamento como `react-router-dom` para gerenciar a navegação.
-- **Customizar o Tema**: Todas as cores e variáveis de design estão centralizadas no topo do arquivo `src/App.css`. Modificar essas variáveis irá atualizar o tema em toda a aplicação.
-- **Criar Novos Componentes**: Ao criar novos componentes, siga o estilo dos componentes existentes e use as classes do Tailwind CSS e `shadcn/ui` para manter a consistência visual.
-
-Este guia deve fornecer uma base sólida para você integrar e construir sobre o novo frontend. Bom desenvolvimento. Boa sorte com a sua demo!
+This guide should provide a solid foundation for you to integrate and build upon the new frontend. Happy development. Good luck with your demo!

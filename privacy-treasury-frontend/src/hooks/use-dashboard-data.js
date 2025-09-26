@@ -213,7 +213,7 @@ export const useDashboardData = () => {
 
       return {
         id: `${change.symbol ?? change.asset}-${index}`,
-        date: new Date().toLocaleDateString('pt-BR'),
+        date: new Date().toLocaleDateString('en-US'),
         description: `Rebalanceamento ${change.symbol ?? change.asset}`,
         type: action === 'buy' || action === 'increase' ? 'outgoing' : action === 'sell' ? 'incoming' : 'pending',
         amount: Number.isFinite(amount) ? amount : 0,
@@ -239,8 +239,8 @@ export const useDashboardData = () => {
       requiredSignatures: 3,
       currentSignatures: index % 3 === 0 ? 2 : 1,
       signers: item.signers ?? defaultSigners,
-      createdAt: new Date().toLocaleString('pt-BR'),
-      expiresAt: new Date(Date.now() + (index + 1) * 86400000).toLocaleString('pt-BR')
+      createdAt: new Date().toLocaleString('en-US'),
+      expiresAt: new Date(Date.now() + (index + 1) * 86400000).toLocaleString('en-US')
     }))
 
     const activeProposals = multiSigQueue.length
@@ -251,7 +251,7 @@ export const useDashboardData = () => {
     const metrics = [
       {
         id: 'treasury-value',
-        title: 'Valor Total do Tesouro',
+        title: 'Total Treasury Value',
         value: totalValue > 0 ? `$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : '—',
         change: monthlyGrowth !== null ? `${monthlyGrowth.toFixed(1)}%` : '+0%',
         changeType: monthlyGrowth !== null && monthlyGrowth >= 0 ? 'positive' : 'negative',
@@ -279,7 +279,7 @@ export const useDashboardData = () => {
         value: performance30d ? `${performance30d.toFixed(2)}%` : expectedReturn ? `${expectedReturn.toFixed(2)}%` : '+0%',
         change: performanceMetrics?.responseTime?.p95 ? `${performanceMetrics.responseTime.p95}ms p95` : '+0,0%',
         changeType: 'positive',
-        description: 'Comparativo com benchmark'
+        description: 'Benchmark comparison'
       }
     ]
 

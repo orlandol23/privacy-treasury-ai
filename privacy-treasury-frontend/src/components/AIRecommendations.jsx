@@ -50,7 +50,7 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
           ) : (
             <>
               <div className="w-2 h-2 bg-success-green rounded-full animate-pulse"></div>
-              <span className="text-xs text-muted-foreground">{lastUpdated ? `Atualizado ${new Date(lastUpdated).toLocaleTimeString('pt-BR')}` : 'Ativo'}</span>
+              <span className="text-xs text-muted-foreground">{lastUpdated ? `Updated ${new Date(lastUpdated).toLocaleTimeString('en-US')}` : 'Active'}</span>
             </>
           )}
         </div>
@@ -134,8 +134,8 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
             ) : (
               <span className="text-xs text-muted-foreground">
                 {lastUpdated
-                  ? `Última análise: ${new Date(lastUpdated).toLocaleString('pt-BR')}`
-                  : 'Última análise recente'}
+                  ? `Last analysis: ${new Date(lastUpdated).toLocaleString('en-US')}`
+                  : 'Recent analysis'}
               </span>
             )}
           </div>

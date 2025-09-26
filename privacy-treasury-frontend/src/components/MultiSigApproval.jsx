@@ -107,7 +107,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                  <span>Valor: {transaction.amount?.toLocaleString?.('pt-BR', { maximumFractionDigits: 2 }) ?? transaction.amount} {transaction.asset}</span>
+                  <span>Value: {transaction.amount?.toLocaleString?.('en-US', { maximumFractionDigits: 2 }) ?? transaction.amount} {transaction.asset}</span>
                   <span>Criado: {transaction.createdAt}</span>
                   <span>Expira: {transaction.expiresAt}</span>
                 </div>
@@ -182,7 +182,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
           </div>
           <div className="flex items-center space-x-3">
             {lastUpdated && !loading ? (
-              <span className="text-xs text-muted-foreground">Atualizado {new Date(lastUpdated).toLocaleTimeString('pt-BR')}</span>
+              <span className="text-xs text-muted-foreground">Updated {new Date(lastUpdated).toLocaleTimeString('en-US')}</span>
             ) : null}
             <Button variant="ghost" size="sm" className="text-xs">
               Histórico de Aprovações

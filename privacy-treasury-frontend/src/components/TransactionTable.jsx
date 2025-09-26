@@ -103,7 +103,7 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
         <h3 className="text-lg font-semibold text-foreground">Transações Recentes</h3>
         <div className="flex items-center space-x-3">
           {lastUpdated && !loading ? (
-            <span className="text-xs text-muted-foreground">Atualizado {new Date(lastUpdated).toLocaleTimeString('pt-BR')}</span>
+            <span className="text-xs text-muted-foreground">Updated {new Date(lastUpdated).toLocaleTimeString('en-US')}</span>
           ) : null}
           <Button variant="ghost" size="sm" className="text-xs">
             Ver Todas
@@ -118,7 +118,7 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
             <tr>
               <th>Data</th>
               <th>Descrição</th>
-              <th>Valor</th>
+              <th>Value</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
@@ -186,7 +186,7 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
       <div className="mt-4 pt-4 border-t border-border">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Mostrando {displayTransactions.length} transações</span>
-          <span>{lastUpdated ? `Última atualização: ${new Date(lastUpdated).toLocaleTimeString('pt-BR')}` : 'Atualização em tempo real'}</span>
+          <span>{lastUpdated ? `Last update: ${new Date(lastUpdated).toLocaleTimeString('en-US')}` : 'Real-time updates'}</span>
         </div>
       </div>
     </div>
