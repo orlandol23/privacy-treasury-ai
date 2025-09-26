@@ -522,6 +522,54 @@
                 <div id="correlationResult"></div>
                 <button onclick="runCorrelationAnalysis()">📈 Analyze Correlations</button>
             </div>
+
+            <!-- Multi-Chain Portfolio Card -->
+            <div class="card">
+                <h2>🌉 Multi-Chain Portfolio</h2>
+                <input type="text" id="walletAddress" placeholder="Enter wallet address (0x...)" value="0x742d35Cc6c4b6E5E9F2F4D8C4B5eF6A1b2c3d4e5">
+                <div id="multiChainResult"></div>
+                <button onclick="getMultiChainBalances()">🔍 Scan All Chains</button>
+            </div>
+
+            <!-- Cross-Chain Bridge Card -->
+            <div class="card">
+                <h2>🌉 Cross-Chain Bridge</h2>
+                <select id="fromChain">
+                    <option value="ethereum">Ethereum</option>
+                    <option value="polygon">Polygon</option>
+                    <option value="arbitrum">Arbitrum</option>
+                    <option value="solana">Solana</option>
+                </select>
+                <select id="toChain">
+                    <option value="polygon">Polygon</option>
+                    <option value="ethereum">Ethereum</option>
+                    <option value="arbitrum">Arbitrum</option>
+                    <option value="solana">Solana</option>
+                </select>
+                <input type="text" id="bridgeAsset" placeholder="Asset (e.g., USDC)" value="USDC">
+                <input type="number" id="bridgeAmount" placeholder="Amount" value="1000">
+                <input type="text" id="recipientAddress" placeholder="Recipient address" value="0x742d35Cc6c4b6E5E9F2F4D8C4B5eF6A1b2c3d4e5">
+                <div id="bridgeResult"></div>
+                <button onclick="initiateBridge()">🚀 Bridge Assets</button>
+            </div>
+
+            <!-- Gas Optimization Card -->
+            <div class="card">
+                <h2>⛽ Gas Optimization</h2>
+                <div id="gasOptimizationResult"></div>
+                <button onclick="optimizeGas()">📊 Analyze Gas Fees</button>
+            </div>
+
+            <!-- Cross-Chain Rebalancing Card -->
+            <div class="card">
+                <h2>🔄 Cross-Chain Rebalancing</h2>
+                <label>Target ETH %: <input type="number" id="ethPercent" value="40" min="0" max="100"></label>
+                <label>Target USDC %: <input type="number" id="usdcPercent" value="30" min="0" max="100"></label>
+                <label>Target SOL %: <input type="number" id="solPercent" value="20" min="0" max="100"></label>
+                <label>Target MATIC %: <input type="number" id="maticPercent" value="10" min="0" max="100"></label>
+                <div id="crossChainRebalanceResult"></div>
+                <button onclick="runCrossChainRebalancing()">🌉 Optimize Across Chains</button>
+            </div>
         </div>
     </div>
     
@@ -927,6 +975,151 @@
                 `;
             } catch (error) {
                 resultDiv.innerHTML = '<div class="alert">Failed to analyze correlations.</div>';
+            }
+        }
+
+        // Multi-Chain Portfolio Balances
+        async function getMultiChainBalances() {
+            const resultDiv = document.getElementById('multiChainResult');
+            resultDiv.innerHTML = '<div class="loading">🌉 Scanning multi-chain portfolio...</div>';
+            
+            const walletAddress = document.getElementById('walletAddress').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/multi-chain-balances`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🌐 Multi-Chain Portfolio</h4>
+                        <p><strong>Total Value:</strong> $${data.multiChainPortfolio.totalValueUSD.toLocaleString()}</p>
+                        <p><strong>Chains Used:</strong> ${data.multiChainPortfolio.chainsUsed}</p>
+                        <p><strong>Unique Assets:</strong> ${data.multiChainPortfolio.uniqueAssets}</p>
+                        <p><strong>Diversification:</strong> ${data.multiChainPortfolio.diversificationRating}</p>
+                        ${data.multiChainPortfolio.assets.slice(0, 3).map(asset => `
+                            <div class="recommendation">
+                                <strong>${asset.symbol}:</strong> ${asset.totalAmount.toFixed(2)} 
+                                ($${asset.totalValueUSD.toLocaleString()}) across ${asset.chains.length} chains
+                            </div>
+                        `).join('')}
+                        <p><small>Scanned: ${new Date(data.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to fetch multi-chain balances.</div>';
+            }
+        }
+
+        // Cross-Chain Bridge
+        async function initiateBridge() {
+            const resultDiv = document.getElementById('bridgeResult');
+            resultDiv.innerHTML = '<div class="loading">🌉 Initiating cross-chain bridge...</div>';
+            
+            const bridgeData = {
+                fromChain: document.getElementById('fromChain').value,
+                toChain: document.getElementById('toChain').value,
+                asset: document.getElementById('bridgeAsset').value,
+                amount: parseFloat(document.getElementById('bridgeAmount').value),
+                recipientAddress: document.getElementById('recipientAddress').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/cross-chain-bridge`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bridgeData)
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🚀 Bridge Operation Initiated</h4>
+                        <p><strong>Operation ID:</strong> ${data.bridgeOperation.id}</p>
+                        <p><strong>Route:</strong> ${data.bridgeOperation.fromChain} → ${data.bridgeOperation.toChain}</p>
+                        <p><strong>Amount:</strong> ${data.bridgeOperation.amount} ${data.bridgeOperation.asset}</p>
+                        <p><strong>Estimated Time:</strong> ${data.bridgeOperation.estimatedTime}</p>
+                        <p><strong>Total Fees:</strong> $${data.bridgeOperation.fees.total.toFixed(2)}</p>
+                        <p><strong>Status:</strong> ${data.bridgeOperation.status}</p>
+                        <div class="recommendation">Bridge operation is being processed...</div>
+                        <p><small>Initiated: ${new Date(data.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to initiate bridge operation.</div>';
+            }
+        }
+
+        // Gas Optimization
+        async function optimizeGas() {
+            const resultDiv = document.getElementById('gasOptimizationResult');
+            resultDiv.innerHTML = '<div class="loading">⛽ Analyzing gas optimization...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/gas-optimization`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>⛽ Gas Optimization Analysis</h4>
+                        <p><strong>Ethereum:</strong> ${data.gasOptimization.optimization.ethereum.currentGwei} gwei → ${data.gasOptimization.optimization.ethereum.recommendedGwei} gwei (${data.gasOptimization.optimization.ethereum.savings} savings)</p>
+                        <p><strong>Polygon:</strong> ${data.gasOptimization.optimization.polygon.currentGwei} gwei → ${data.gasOptimization.optimization.polygon.recommendedGwei} gwei (${data.gasOptimization.optimization.polygon.savings} savings)</p>
+                        <p><strong>Best Time:</strong> ${data.gasOptimization.optimization.arbitrum.optimalTime}</p>
+                        <div class="recommendation">${data.gasOptimization.recommendation}</div>
+                        <p><strong>Potential Savings:</strong> ${data.gasOptimization.totalSavings}</p>
+                        <p><small>Updated: ${new Date(data.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to optimize gas fees.</div>';
+            }
+        }
+
+        // Cross-Chain Rebalancing
+        async function runCrossChainRebalancing() {
+            const resultDiv = document.getElementById('crossChainRebalanceResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Calculating cross-chain rebalancing...</div>';
+            
+            const walletAddress = document.getElementById('walletAddress').value;
+            const targetAllocation = {
+                ETH: parseInt(document.getElementById('ethPercent').value),
+                USDC: parseInt(document.getElementById('usdcPercent').value),
+                SOL: parseInt(document.getElementById('solPercent').value),
+                MATIC: parseInt(document.getElementById('maticPercent').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/cross-chain-rebalancing`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress, targetAllocation })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🌉 Cross-Chain Rebalancing Strategy</h4>
+                        <p><strong>Operations Required:</strong> ${data.rebalancing.operations.length}</p>
+                        <p><strong>Estimated Total Fees:</strong> $${data.rebalancing.estimatedTotalFees.toFixed(2)}</p>
+                        <p><strong>Estimated Time:</strong> ${data.rebalancing.estimatedTime}</p>
+                        ${data.rebalancing.operations.slice(0, 3).map(op => `
+                            <div class="recommendation">
+                                <strong>${op.asset}:</strong> ${op.action} $${op.amount.toFixed(0)} on ${op.recommendedChain}
+                                <br><small>Fees: $${op.estimatedFees.toFixed(2)}</small>
+                            </div>
+                        `).join('')}
+                        <div class="recommendation">${data.rebalancing.recommendation}</div>
+                        <p><small>Generated: ${new Date(data.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to calculate cross-chain rebalancing.</div>';
             }
         }
 

@@ -1,4 +1,5 @@
 import { AIAutomationEngine } from './AIAutomationEngine';
+import { CrossChainOrchestrator } from './CrossChainOrchestrator';
 
 interface Asset {
   symbol: string;
@@ -31,12 +32,14 @@ export class TreasuryAgent {
   private name: string = "PrivacyTreasuryAI";
   private version: string = "1.0.0";
   private aiEngine: AIAutomationEngine;
+  private crossChainOrchestrator: CrossChainOrchestrator;
   
   constructor() {
     console.log(`✨ ${this.name} Agent v${this.version} initialized`);
     console.log(`🔐 Privacy mode: Enabled (Midnight)`);
     console.log(`🤖 AI Engine: Active (ElizaOS)`);
     this.aiEngine = new AIAutomationEngine();
+    this.crossChainOrchestrator = new CrossChainOrchestrator();
   }
   
   // Analyze portfolio and generate insights
@@ -413,6 +416,105 @@ export class TreasuryAgent {
       };
     } catch (error) {
       console.error('Correlation analysis error:', error);
+      throw error;
+    }
+  }
+
+  // Multi-Chain Balance Aggregation
+  async getMultiChainBalances(walletAddress: string): Promise<any> {
+    try {
+      console.log('🌉 Fetching multi-chain portfolio balances...');
+      const assets = await this.crossChainOrchestrator.getMultiChainBalances(walletAddress);
+      const aggregated = this.crossChainOrchestrator.aggregateBalances(assets);
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        walletAddress,
+        multiChainPortfolio: {
+          totalValueUSD: aggregated.totalValueUSD,
+          chainsUsed: aggregated.chainsUsed,
+          uniqueAssets: aggregated.uniqueAssets,
+          diversificationRating: aggregated.diversificationRating,
+          assets: aggregated.aggregatedAssets
+        },
+        message: `Found assets across ${aggregated.chainsUsed} chains`
+      };
+    } catch (error) {
+      console.error('Multi-chain balance error:', error);
+      throw error;
+    }
+  }
+
+  // Cross-Chain Bridge Operations
+  async initiateCrossChainBridge(
+    fromChain: string,
+    toChain: string,
+    asset: string,
+    amount: number,
+    recipientAddress: string
+  ): Promise<any> {
+    try {
+      console.log(`🌉 Initiating cross-chain bridge: ${amount} ${asset} ${fromChain} → ${toChain}`);
+      const bridgeOperation = await this.crossChainOrchestrator.initiateBridge(
+        fromChain,
+        toChain,
+        asset,
+        amount,
+        recipientAddress
+      );
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        bridgeOperation,
+        message: `Bridge operation initiated: ${bridgeOperation.id}`
+      };
+    } catch (error) {
+      console.error('Cross-chain bridge error:', error);
+      throw error;
+    }
+  }
+
+  // Gas Optimization Across Chains
+  async getGasOptimization(): Promise<any> {
+    try {
+      console.log('⛽ Analyzing gas optimization opportunities...');
+      const gasOptimization = await this.crossChainOrchestrator.optimizeGas();
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        gasOptimization,
+        message: 'Gas optimization analysis completed'
+      };
+    } catch (error) {
+      console.error('Gas optimization error:', error);
+      throw error;
+    }
+  }
+
+  // Cross-Chain Rebalancing
+  async getCrossChainRebalancing(
+    walletAddress: string,
+    targetAllocation: Map<string, number>
+  ): Promise<any> {
+    try {
+      console.log('🔄 Calculating cross-chain rebalancing strategy...');
+      const assets = await this.crossChainOrchestrator.getMultiChainBalances(walletAddress);
+      const rebalancing = await this.crossChainOrchestrator.rebalanceAcrossChains(
+        assets,
+        targetAllocation
+      );
+      
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        rebalancing,
+        message: `Cross-chain rebalancing strategy generated with ${rebalancing.operations.length} operations`
+      };
+    } catch (error) {
+      console.error('Cross-chain rebalancing error:', error);
       throw error;
     }
   }

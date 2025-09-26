@@ -131,19 +131,79 @@ app.get('/api/correlation-analysis', async (req, res) => {
   }
 });
 
+// Multi-Chain Balance endpoint
+app.post('/api/multi-chain-balances', async (req, res) => {
+  try {
+    const { walletAddress } = req.body;
+    const balances = await treasuryAgent.getMultiChainBalances(walletAddress);
+    res.json(balances);
+  } catch (error) {
+    res.status(500).json({ error: 'Multi-chain balance fetch failed' });
+  }
+});
+
+// Cross-Chain Bridge endpoint
+app.post('/api/cross-chain-bridge', async (req, res) => {
+  try {
+    const { fromChain, toChain, asset, amount, recipientAddress } = req.body;
+    const bridgeOperation = await treasuryAgent.initiateCrossChainBridge(
+      fromChain, toChain, asset, amount, recipientAddress
+    );
+    res.json(bridgeOperation);
+  } catch (error) {
+    res.status(500).json({ error: 'Cross-chain bridge failed' });
+  }
+});
+
+// Gas Optimization endpoint
+app.get('/api/gas-optimization', async (req, res) => {
+  try {
+    const gasOptimization = await treasuryAgent.getGasOptimization();
+    res.json(gasOptimization);
+  } catch (error) {
+    res.status(500).json({ error: 'Gas optimization failed' });
+  }
+});
+
+// Cross-Chain Rebalancing endpoint
+app.post('/api/cross-chain-rebalancing', async (req, res) => {
+  try {
+    const { walletAddress, targetAllocation } = req.body;
+    const allocationMap = new Map(Object.entries(targetAllocation).map(([k, v]) => [k, Number(v)]));
+    const rebalancing = await treasuryAgent.getCrossChainRebalancing(walletAddress, allocationMap);
+    res.json(rebalancing);
+  } catch (error) {
+    res.status(500).json({ error: 'Cross-chain rebalancing failed' });
+  }
+});
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log('');
   console.log('🚀 PrivacyTreasuryAI Server Started!');
   console.log(`📡 API available at: http://localhost:${PORT}`);
   console.log('');
-  console.log('🧪 Test endpoints:');
+  console.log('🧪 Core Treasury Endpoints:');
   console.log(`   GET  http://localhost:${PORT}/`);
   console.log(`   POST http://localhost:${PORT}/api/analyze-portfolio`);
   console.log(`   POST http://localhost:${PORT}/api/private-transaction`);
   console.log(`   POST http://localhost:${PORT}/api/ai-recommendations`);
   console.log(`   POST http://localhost:${PORT}/api/simulate-rebalance`);
+  console.log(`   POST http://localhost:${PORT}/api/agent-communication`);
+  console.log('');
+  console.log('🤖 Advanced ML Endpoints:');
+  console.log(`   POST http://localhost:${PORT}/api/ml-optimization`);
+  console.log(`   POST http://localhost:${PORT}/api/risk-assessment`);
+  console.log(`   POST http://localhost:${PORT}/api/yield-optimization`);
+  console.log(`   GET  http://localhost:${PORT}/api/correlation-analysis`);
+  console.log('');
+  console.log('🌉 Cross-Chain Endpoints:');
+  console.log(`   POST http://localhost:${PORT}/api/multi-chain-balances`);
+  console.log(`   POST http://localhost:${PORT}/api/cross-chain-bridge`);
+  console.log(`   GET  http://localhost:${PORT}/api/gas-optimization`);
+  console.log(`   POST http://localhost:${PORT}/api/cross-chain-rebalancing`);
   console.log('');
   console.log('🔗 Tech Stack: Midnight | ElizaOS | DEGA MCP');
+  console.log('🎯 Status: Day 2 Cross-Chain Orchestration Complete!');
   console.log('');
 });
