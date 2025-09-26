@@ -7,7 +7,46 @@ AI-powered DAO Treasury Management with Privacy-First Design on Midnight Blockch
 ### Overview
 PrivacyTreasuryAI revolutionizes DAO treasury management by combining artificial intelligence with zero-knowledge privacy. Built on Midnight blockchain and powered by ElizaOS agents, our solution addresses the $35B+ DAO treasury market's critical needs for automated, intelligent, and private financial operations.
 
-### 🎯 Problem Statement
+### 🎯 Problem Statement  
+DAOs currently manage over $35 billion in assets with:
+
+## 🤖 Day 2 Update: Advanced AI Automation Engine
+
+We've significantly enhanced PrivacyTreasuryAI with a sophisticated AI automation engine that includes:
+
+### 🧠 Machine Learning Portfolio Optimization
+- **Modern Portfolio Theory implementation** with risk-return optimization
+- **Dynamic asset allocation** based on market conditions and risk tolerance
+- **Automated rebalancing** with configurable frequencies (daily/weekly/monthly)
+- **Advanced risk metrics** including VaR, Expected Shortfall, and Beta calculations
+
+### 📊 Advanced Risk Assessment
+- **Herfindahl Index** for concentration risk analysis
+- **Value at Risk (VaR)** calculations at 95% confidence level
+- **Expected Shortfall** for tail risk assessment
+- **Portfolio Beta** analysis relative to market benchmarks
+- **Real-time volatility prediction** using historical data analysis
+
+### 💰 DeFi Yield Optimization
+- **Multi-protocol yield scanning** across major DeFi platforms
+- **Risk-adjusted yield calculations** with safety scoring
+- **Strategy-based recommendations** (Conservative 3-7%, Moderate 7-15%, Aggressive 15%+)
+- **DeFiLlama integration simulation** for real-time yield data
+- **Automated yield farming opportunities** identification
+
+### 🔗 Correlation Analysis & Diversification
+- **Asset correlation matrix** calculation for portfolio diversification
+- **Diversification ratio metrics** to optimize risk reduction
+- **Cross-asset relationship analysis** for better allocation decisions
+- **Dynamic rebalancing triggers** based on correlation changes
+
+### ⚡ Real-Time Automation Features
+- **Automated cron job scheduling** for regular portfolio maintenance
+- **Threshold-based rebalancing** with customizable sensitivity
+- **Market condition monitoring** with adaptive strategies
+- **Multi-timeframe analysis** for short and long-term optimization
+
+## 🎯 Original Problem Statement
 DAOs currently manage over $35 billion in assets with:
 - Manual, inefficient allocation processes
 - Lack of privacy in strategic transactions
@@ -58,6 +97,7 @@ An autonomous AI agent system that:
 
 ### 📊 API Endpoints
 
+#### Core Treasury Management
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/analyze-portfolio` | POST | AI analysis of DAO treasury |
@@ -65,6 +105,14 @@ An autonomous AI agent system that:
 | `/api/ai-recommendations` | POST | Get AI-powered suggestions |
 | `/api/simulate-rebalance` | POST | Simulate portfolio rebalancing |
 | `/api/agent-communication` | POST | Inter-agent messaging |
+
+#### Advanced ML Features (Day 2)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ml-optimization` | POST | ML-powered portfolio optimization |
+| `/api/risk-assessment` | POST | Advanced risk metrics (VaR, ES, Beta) |
+| `/api/yield-optimization` | POST | DeFi yield farming opportunities |
+| `/api/correlation-analysis` | GET | Asset correlation matrix analysis |
 
 ### 🚀 Quick Start
 

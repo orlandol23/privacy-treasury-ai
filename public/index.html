@@ -487,6 +487,41 @@
                 <div id="agentResponse"></div>
                 <button onclick="sendAgentMessage()">📡 Send Message via DEGA MCP</button>
             </div>
+
+            <!-- ML Portfolio Optimization Card -->
+            <div class="card">
+                <h2>🧠 ML Portfolio Optimization</h2>
+                <label>Risk Tolerance: <input type="range" id="riskTolerance" min="0" max="1" step="0.1" value="0.5"><span id="riskValue">0.5</span></label>
+                <label>Time Horizon (months): <input type="number" id="timeHorizon" value="12" min="1" max="60"></label>
+                <div id="mlOptimizationResult"></div>
+                <button onclick="runMLOptimization()">🤖 Optimize with ML</button>
+            </div>
+
+            <!-- Advanced Risk Assessment Card -->
+            <div class="card">
+                <h2>📊 Advanced Risk Assessment</h2>
+                <div id="riskAssessmentResult"></div>
+                <button onclick="runRiskAssessment()">🔍 Analyze Risk Metrics</button>
+            </div>
+
+            <!-- Yield Optimization Card -->
+            <div class="card">
+                <h2>💰 DeFi Yield Optimization</h2>
+                <select id="yieldStrategy">
+                    <option value="conservative">Conservative (3-7% APY)</option>
+                    <option value="moderate">Moderate (7-15% APY)</option>
+                    <option value="aggressive">Aggressive (15%+ APY)</option>
+                </select>
+                <div id="yieldOptimizationResult"></div>
+                <button onclick="runYieldOptimization()">🚀 Find Yield Opportunities</button>
+            </div>
+
+            <!-- Correlation Analysis Card -->
+            <div class="card">
+                <h2>🔗 Asset Correlation Matrix</h2>
+                <div id="correlationResult"></div>
+                <button onclick="runCorrelationAnalysis()">📈 Analyze Correlations</button>
+            </div>
         </div>
     </div>
     
@@ -772,6 +807,134 @@
             }
         }
         
+        // ML Portfolio Optimization
+        async function runMLOptimization() {
+            const resultDiv = document.getElementById('mlOptimizationResult');
+            resultDiv.innerHTML = '<div class="loading">🧠 Running ML optimization...</div>';
+            
+            const optimizationData = {
+                assets: portfolio,
+                riskTolerance: parseFloat(document.getElementById('riskTolerance').value),
+                timeHorizon: parseInt(document.getElementById('timeHorizon').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/ml-optimization`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(optimizationData)
+                });
+                
+                const optimization = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🤖 ML Optimization Results</h4>
+                        <p><strong>Analysis ID:</strong> ${optimization.optimization.analysisId}</p>
+                        <p><strong>Expected Return:</strong> ${optimization.optimization.expectedReturn}%</p>
+                        <p><strong>Risk Score:</strong> ${optimization.optimization.riskScore}/100</p>
+                        <p><strong>Sharpe Ratio:</strong> ${optimization.optimization.sharpeRatio}</p>
+                        <p><strong>Recommendation:</strong> ${optimization.optimization.recommendation}</p>
+                        <p><small>Processed: ${new Date(optimization.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to run ML optimization.</div>';
+            }
+        }
+
+        // Advanced Risk Assessment
+        async function runRiskAssessment() {
+            const resultDiv = document.getElementById('riskAssessmentResult');
+            resultDiv.innerHTML = '<div class="loading">📊 Running advanced risk assessment...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/risk-assessment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assets: portfolio })
+                });
+                
+                const assessment = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🔍 Advanced Risk Metrics</h4>
+                        <p><strong>Concentration Risk:</strong> ${(assessment.riskAssessment.concentrationRisk * 100).toFixed(1)}%</p>
+                        <p><strong>Value at Risk (95%):</strong> $${assessment.riskAssessment.valueAtRisk.toLocaleString()}</p>
+                        <p><strong>Expected Shortfall:</strong> $${assessment.riskAssessment.expectedShortfall.toLocaleString()}</p>
+                        <p><strong>Portfolio Beta:</strong> ${assessment.riskAssessment.portfolioBeta}</p>
+                        <p><small>Analyzed: ${new Date(assessment.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to run risk assessment.</div>';
+            }
+        }
+
+        // Yield Optimization
+        async function runYieldOptimization() {
+            const resultDiv = document.getElementById('yieldOptimizationResult');
+            resultDiv.innerHTML = '<div class="loading">💰 Finding yield opportunities...</div>';
+            
+            const strategy = document.getElementById('yieldStrategy').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/yield-optimization`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assets: portfolio, strategy })
+                });
+                
+                const yieldData = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>🚀 DeFi Yield Opportunities</h4>
+                        <p><strong>Strategy:</strong> ${strategy.charAt(0).toUpperCase() + strategy.slice(1)}</p>
+                        <p><strong>Total APY Potential:</strong> ${yieldData.yieldOpportunities.totalApy}%</p>
+                        <p><strong>Best Protocol:</strong> ${yieldData.yieldOpportunities.bestProtocol}</p>
+                        <p><strong>Risk Level:</strong> ${yieldData.yieldOpportunities.riskLevel}/10</p>
+                        <div class="recommendation">${yieldData.yieldOpportunities.recommendation}</div>
+                        <p><small>Updated: ${new Date(yieldData.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to optimize yield.</div>';
+            }
+        }
+
+        // Correlation Analysis
+        async function runCorrelationAnalysis() {
+            const resultDiv = document.getElementById('correlationResult');
+            resultDiv.innerHTML = '<div class="loading">🔗 Analyzing asset correlations...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/correlation-analysis`);
+                const correlationData = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="analysis-result">
+                        <h4>📈 Asset Correlation Matrix</h4>
+                        <p><strong>Diversification Ratio:</strong> ${(correlationData.correlationMatrix.diversificationRatio * 100).toFixed(1)}%</p>
+                        <div class="recommendation">
+                            ${correlationData.correlationMatrix.diversificationRatio > 0.7 ? 
+                                "🟢 Well diversified portfolio" : 
+                                "🟡 Consider adding uncorrelated assets"}
+                        </div>
+                        <p><small>Generated: ${new Date(correlationData.timestamp).toLocaleString()}</small></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert">Failed to analyze correlations.</div>';
+            }
+        }
+
+        // Update risk tolerance display
+        document.getElementById('riskTolerance').addEventListener('input', function() {
+            document.getElementById('riskValue').textContent = this.value;
+        });
+
         // Initialize
         checkStatus();
         updateStats();

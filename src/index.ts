@@ -88,7 +88,50 @@ app.post('/api/agent-communication', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+// Advanced ML Portfolio Optimization endpoint
+app.post('/api/ml-optimization', async (req, res) => {
+  try {
+    const { assets, riskTolerance, timeHorizon } = req.body;
+    const optimization = await treasuryAgent.getMLOptimization(assets, riskTolerance, timeHorizon);
+    res.json(optimization);
+  } catch (error) {
+    res.status(500).json({ error: 'ML optimization failed' });
+  }
+});
+
+// Risk Assessment endpoint
+app.post('/api/risk-assessment', async (req, res) => {
+  try {
+    const { assets } = req.body;
+    const riskAssessment = await treasuryAgent.getAdvancedRiskAssessment(assets);
+    res.json(riskAssessment);
+  } catch (error) {
+    res.status(500).json({ error: 'Risk assessment failed' });
+  }
+});
+
+// Yield Optimization endpoint
+app.post('/api/yield-optimization', async (req, res) => {
+  try {
+    const { assets, strategy } = req.body;
+    const yieldOptimization = await treasuryAgent.getYieldOptimization(assets, strategy);
+    res.json(yieldOptimization);
+  } catch (error) {
+    res.status(500).json({ error: 'Yield optimization failed' });
+  }
+});
+
+// Correlation Analysis endpoint
+app.get('/api/correlation-analysis', async (req, res) => {
+  try {
+    const correlationMatrix = await treasuryAgent.getCorrelationAnalysis();
+    res.json(correlationMatrix);
+  } catch (error) {
+    res.status(500).json({ error: 'Correlation analysis failed' });
+  }
+});
+
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log('');
   console.log('🚀 PrivacyTreasuryAI Server Started!');

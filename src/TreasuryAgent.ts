@@ -1,3 +1,5 @@
+import { AIAutomationEngine } from './AIAutomationEngine';
+
 interface Asset {
   symbol: string;
   amount: number;
@@ -28,11 +30,13 @@ interface PrivateTransaction {
 export class TreasuryAgent {
   private name: string = "PrivacyTreasuryAI";
   private version: string = "1.0.0";
+  private aiEngine: AIAutomationEngine;
   
   constructor() {
     console.log(`✨ ${this.name} Agent v${this.version} initialized`);
     console.log(`🔐 Privacy mode: Enabled (Midnight)`);
     console.log(`🤖 AI Engine: Active (ElizaOS)`);
+    this.aiEngine = new AIAutomationEngine();
   }
   
   // Analyze portfolio and generate insights
@@ -336,5 +340,80 @@ export class TreasuryAgent {
     // Simulação de zero-knowledge proof
     const hash = `${from}_${to}_${amount}_${Date.now()}`;
     return `zk_proof_${Buffer.from(hash).toString('base64').substr(0, 20)}`;
+  }
+
+  // Advanced ML Portfolio Optimization
+  async getMLOptimization(assets: Asset[], riskTolerance: number, timeHorizon: number): Promise<any> {
+    try {
+      console.log('🧠 Running ML portfolio optimization...');
+      const optimization = await this.aiEngine.optimizePortfolio(assets, {
+        riskTolerance,
+        timeHorizon,
+        rebalanceFrequency: 'monthly'
+      });
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        optimization,
+        message: 'ML optimization completed successfully'
+      };
+    } catch (error) {
+      console.error('ML optimization error:', error);
+      throw error;
+    }
+  }
+
+  // Advanced Risk Assessment
+  async getAdvancedRiskAssessment(assets: Asset[]): Promise<any> {
+    try {
+      console.log('📊 Running advanced risk assessment...');
+      const riskAssessment = await this.aiEngine.assessRisk(assets);
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        riskAssessment,
+        message: 'Advanced risk assessment completed'
+      };
+    } catch (error) {
+      console.error('Risk assessment error:', error);
+      throw error;
+    }
+  }
+
+  // Yield Optimization
+  async getYieldOptimization(assets: Asset[], strategy: string): Promise<any> {
+    try {
+      console.log('💰 Running yield optimization...');
+      const yieldOpportunities = await this.aiEngine.optimizeYield(assets, strategy);
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        yieldOpportunities,
+        strategy,
+        message: 'Yield optimization completed successfully'
+      };
+    } catch (error) {
+      console.error('Yield optimization error:', error);
+      throw error;
+    }
+  }
+
+  // Correlation Analysis
+  async getCorrelationAnalysis(): Promise<any> {
+    try {
+      console.log('🔗 Running correlation analysis...');
+      const correlationMatrix = await this.aiEngine.calculateCorrelationMatrix([
+        'BTC', 'ETH', 'USDC', 'DEGA', 'SOL', 'AVAX', 'MATIC', 'DOT'
+      ]);
+      return {
+        success: true,
+        timestamp: new Date().toISOString(),
+        correlationMatrix,
+        message: 'Correlation analysis completed successfully'
+      };
+    } catch (error) {
+      console.error('Correlation analysis error:', error);
+      throw error;
+    }
   }
 }
