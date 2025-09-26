@@ -1,0 +1,118 @@
+### Test PrivacyTreasuryAI API Endpoints
+### Save this file as test-api.http and use with REST Client extension in VS Code
+
+### Test basic health check
+GET http://localhost:3000/
+
+### Analyze portfolio
+POST http://localhost:3000/api/analyze-portfolio
+Content-Type: application/json
+
+{
+  "assets": [
+    {
+      "symbol": "ETH",
+      "amount": 5.5,
+      "valueUSD": 8800
+    },
+    {
+      "symbol": "USDC",
+      "amount": 12000,
+      "valueUSD": 12000
+    },
+    {
+      "symbol": "MATIC",
+      "amount": 5000,
+      "valueUSD": 3500
+    }
+  ]
+}
+
+### Create private transaction
+POST http://localhost:3000/api/private-transaction
+Content-Type: application/json
+
+{
+  "from": "0xDAO_Treasury_Address",
+  "to": "0xRecipient_Address",
+  "amount": 1000,
+  "assetType": "USDC"
+}
+
+### Get AI recommendations
+POST http://localhost:3000/api/ai-recommendations
+Content-Type: application/json
+
+{
+  "currentAllocation": [
+    {
+      "symbol": "ETH",
+      "amount": 5.5,
+      "valueUSD": 8800,
+      "percentage": 36
+    },
+    {
+      "symbol": "USDC",
+      "amount": 12000,
+      "valueUSD": 12000,
+      "percentage": 49
+    },
+    {
+      "symbol": "MATIC",
+      "amount": 5000,
+      "valueUSD": 3500,
+      "percentage": 15
+    }
+  ],
+  "marketConditions": {
+    "trend": "bearish",
+    "volatility": "high"
+  }
+}
+
+### Simulate rebalancing
+POST http://localhost:3000/api/simulate-rebalance
+Content-Type: application/json
+
+{
+  "currentPortfolio": [
+    {
+      "symbol": "ETH",
+      "amount": 5.5,
+      "valueUSD": 8800
+    },
+    {
+      "symbol": "USDC",
+      "amount": 12000,
+      "valueUSD": 12000
+    },
+    {
+      "symbol": "MATIC",
+      "amount": 5000,
+      "valueUSD": 3500
+    }
+  ],
+  "targetAllocation": [
+    {
+      "symbol": "ETH",
+      "targetPercentage": 40
+    },
+    {
+      "symbol": "USDC",
+      "targetPercentage": 50
+    },
+    {
+      "symbol": "MATIC",
+      "targetPercentage": 10
+    }
+  ]
+}
+
+### Test agent communication
+POST http://localhost:3000/api/agent-communication
+Content-Type: application/json
+
+{
+  "message": "Analyze current market conditions for treasury rebalancing",
+  "targetAgent": "MarketAnalyzerAgent"
+}
