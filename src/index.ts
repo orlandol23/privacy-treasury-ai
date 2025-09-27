@@ -33,15 +33,31 @@ validateEnvironment();
 
 const app = express();
 
+// --- FIRST THING: configure CORS ---
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+}));
+
+// Important: preflight handler
+app.options('*', cors());
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
 // Performance and security middleware
 app.use(helmet({ contentSecurityPolicy: false })); // Security headers
 app.use(compression()); // Gzip compression
-app.use(cors({ 
-  origin: config.security.corsOrigins,
-  credentials: true 
+app.use(express.static('public', {
+  maxAge: '1d',
+  etag: true,
+  index: false
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.static('public', { maxAge: '1d', etag: true }));
 app.use(requestPerformanceMiddleware);
 app.use(enhancedPerformanceMiddleware);
 
@@ -75,15 +91,6 @@ const parseTimeHorizon = (value: number | string | undefined): number => {
 };
 
 // ===== API ROUTES =====
-
-// Health check endpoint
-app.get('/', (req, res) => {
-  return sendSuccess(res, {
-    message: '🤖 PrivacyTreasuryAI is online!',
-    features: ['AI Analysis', 'Private Transactions', 'Auto Rebalancing'],
-    tech: ['Midnight Blockchain', 'ElizaOS', 'DEGA MCP']
-  });
-});
 
 // Analyze DAO portfolio
 app.post('/api/analyze-portfolio', async (req, res) => {
@@ -485,6 +492,15 @@ app.get('/api/system/health', telemetryCache, (req, res) => {
   };
   
   return sendSuccess(res, health);
+});
+
+// Homepage route should be registered after API routes
+app.get('/', (req, res) => {
+  return sendSuccess(res, {
+    message: '🤖 PrivacyTreasuryAI is online!',
+    features: ['AI Analysis', 'Private Transactions', 'Auto Rebalancing'],
+    tech: ['Midnight Blockchain', 'ElizaOS', 'DEGA MCP']
+  });
 });
 
 app.listen(config.server.port, () => {

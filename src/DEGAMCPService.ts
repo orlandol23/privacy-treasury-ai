@@ -53,12 +53,18 @@ export class DEGAMCPService extends EventEmitter {
   private dAuthWallets: Map<string, dAuthWallet> = new Map();
   private metachainConfigs: Map<string, MetachainConfig> = new Map();
   private jwtSecret: string = process.env.JWT_SECRET || 'dega-mcp-secret-key';
+  private readonly endpoints = {
+    mcp: process.env.DEGA_MCP_ENDPOINT || 'https://api.dega.org/mcp',
+    communication: process.env.DEGA_COMMUNICATION_ENDPOINT || 'https://api.dega.org/communication',
+    marketplace: 'https://api.dega.org/marketplace'
+  };
 
   constructor() {
     super();
     console.log('🎮 DEGA MCP Service initializing...');
     this.initializeMetachains();
     this.setupMCPProtocol();
+    void this.initializeMCP();
     console.log('✅ DEGA MCP Service initialized');
   }
 
@@ -98,6 +104,19 @@ export class DEGAMCPService extends EventEmitter {
     this.on('mcp:request', this.handleMCPRequest.bind(this));
     this.on('mcp:response', this.handleMCPResponse.bind(this));
     this.on('mcp:notification', this.handleMCPNotification.bind(this));
+  }
+
+  async initializeMCP(): Promise<void> {
+    try {
+      const response = await fetch(`${this.endpoints.mcp}/health`);
+      if (response.ok) {
+        console.log('✅ Connected to DEGA MCP');
+        return;
+      }
+    } catch (error) {
+      // fall through to fallback message
+    }
+    console.log('⚠️ DEGA MCP unavailable, using simulation mode');
   }
 
   // Gaming Treasury Management
@@ -261,11 +280,33 @@ export class DEGAMCPService extends EventEmitter {
           },
           timestamp: Date.now()
         };
-        
+
         this.emit('mcp:response', response);
         resolve(response.result);
       }, 500 + Math.random() * 1500);
     });
+  }
+
+  async sendAgentMessage(message: any): Promise<any> {
+    try {
+      const response = await fetch(`${this.endpoints.communication}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.log('Using simulated agent communication');
+    }
+
+    return {
+      success: true,
+      messageId: `sim-${Date.now()}`,
+      timestamp: new Date().toISOString()
+    };
   }
 
   private generateMockAgentResponse(method: string, params: any): any {

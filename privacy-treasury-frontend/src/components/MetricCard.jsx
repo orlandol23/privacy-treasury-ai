@@ -11,6 +11,7 @@ const MetricCard = ({
   loading = false,
   className = ''
 }) => {
+  console.info('[MetricCard] render', { title, value, change, loading })
   const getTrendIcon = () => {
     switch (changeType) {
       case 'positive':
@@ -59,9 +60,9 @@ const MetricCard = ({
 
       {/* Description */}
       {description && (
-        <p className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground">
           {loading ? <Skeleton className="h-4 w-36 bg-muted/40" /> : description}
-        </p>
+        </div>
       )}
     </div>
   )

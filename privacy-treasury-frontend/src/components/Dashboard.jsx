@@ -76,7 +76,7 @@ const Dashboard = () => {
     }
   ]
 
-  const gasOptimization = systemStatus.gas?.gasOptimization ?? {}
+  const gasOptimization = systemStatus.gas ?? {}
 
   const statusColor = (status) => {
     const normalized = String(status || '').toLowerCase()

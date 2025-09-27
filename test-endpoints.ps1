@@ -3,12 +3,27 @@
 # Testing all 23 endpoints systematically
 # ========================================
 
-$baseUrl = "http://localhost:3001"
+param(
+    [string]$BaseUrl = $env:PRIVACY_TREASURY_API_URL
+)
+
+if (-not $BaseUrl) {
+    $BaseUrl = "http://localhost:3001"
+}
+
+$baseUrl = $BaseUrl.TrimEnd('/')
 $testResults = @()
 
-Write-Host "🧪 Starting Comprehensive API Testing..." -ForegroundColor Green
-Write-Host "🚀 PrivacyTreasuryAI - Testing 23 Endpoints" -ForegroundColor Yellow
-Write-Host "=" * 50
+Write-Host "[Suite] Starting comprehensive API testing" -ForegroundColor Green
+Write-Host "[Suite] PrivacyTreasuryAI - Testing 23 endpoints" -ForegroundColor Yellow
+Write-Host ("=" * 50)
+
+if (-not $env:GROQ_API_KEY) {
+    Write-Host "[Warning] GROQ_API_KEY is not set. AI endpoints will fall back to mock data." -ForegroundColor Yellow
+}
+if (-not $env:DEGA_MCP_ENDPOINT) {
+    Write-Host "[Warning] DEGA endpoints not configured. MCP calls will run in simulation mode." -ForegroundColor Yellow
+}
 
 # Helper function to test endpoints
 function Test-Endpoint {
@@ -19,7 +34,7 @@ function Test-Endpoint {
         [string]$description
     )
     
-    Write-Host "🔍 Testing: $description" -ForegroundColor Cyan
+    Write-Host "[Endpoint] $description" -ForegroundColor Cyan
     Write-Host "   $method $endpoint"
     
     try {
@@ -42,7 +57,7 @@ function Test-Endpoint {
             throw "API returned success=false: $failureMessage"
         }
         
-        Write-Host "   ✅ SUCCESS" -ForegroundColor Green
+    Write-Host "   Success" -ForegroundColor Green
         $script:testResults += [PSCustomObject]@{
             Endpoint = $endpoint
             Method = $method
@@ -52,7 +67,7 @@ function Test-Endpoint {
         return $response
     }
     catch {
-        Write-Host "   ❌ FAILED: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "   Failed: $($_.Exception.Message)" -ForegroundColor Red
         $script:testResults += [PSCustomObject]@{
             Endpoint = $endpoint
             Method = $method
@@ -69,7 +84,7 @@ function Test-Endpoint {
 # ========================================
 # 1. CORE TREASURY ENDPOINTS (6)
 # ========================================
-Write-Host "🏛️ TESTING CORE TREASURY ENDPOINTS" -ForegroundColor Magenta
+    Write-Host "[Core] Testing core treasury endpoints" -ForegroundColor Magenta
 
 # Test 1: Homepage
 Test-Endpoint -method "GET" -endpoint "/" -description "Homepage"
@@ -134,7 +149,7 @@ Test-Endpoint -method "POST" -endpoint "/api/agent-communication" -body $agentDa
 # ========================================
 # 2. ADVANCED ML ENDPOINTS (4)
 # ========================================
-Write-Host "🤖 TESTING ADVANCED ML ENDPOINTS" -ForegroundColor Magenta
+Write-Host "[ML] Testing advanced ML endpoints" -ForegroundColor Magenta
 
 # Test 7: ML Optimization
 $mlData = @{
@@ -171,7 +186,7 @@ Test-Endpoint -method "GET" -endpoint "/api/correlation-analysis" -description "
 # ========================================
 # 3. CROSS-CHAIN ENDPOINTS (4)
 # ========================================
-Write-Host "🌉 TESTING CROSS-CHAIN ENDPOINTS" -ForegroundColor Magenta
+Write-Host "[Cross-Chain] Testing cross-chain endpoints" -ForegroundColor Magenta
 
 # Test 11: Multi-Chain Balances
 $walletData = @{
@@ -208,7 +223,7 @@ Test-Endpoint -method "POST" -endpoint "/api/cross-chain-rebalancing" -body $cro
 # ========================================
 # 4. SYSTEM OBSERVABILITY ENDPOINTS (2)
 # ========================================
-Write-Host "📈 TESTING SYSTEM OBSERVABILITY ENDPOINTS" -ForegroundColor Magenta
+Write-Host "[Observability] Testing system observability endpoints" -ForegroundColor Magenta
 
 # Test 15: System Performance
 Test-Endpoint -method "GET" -endpoint "/api/system/performance" -description "System Performance Metrics"
@@ -219,7 +234,7 @@ Test-Endpoint -method "GET" -endpoint "/api/system/health" -description "System 
 # ========================================
 # 5. DEGA MCP GAMING ENDPOINTS (7)
 # ========================================
-Write-Host "🎮 TESTING DEGA MCP GAMING ENDPOINTS" -ForegroundColor Magenta
+Write-Host "[Gaming] Testing DEGA MCP gaming endpoints" -ForegroundColor Magenta
 
 # Test 17: Game Treasury Operation
 $gameOpData = @{
@@ -266,20 +281,20 @@ Test-Endpoint -method "GET" -endpoint "/api/dega-service-status" -description "D
 # ========================================
 # TEST RESULTS SUMMARY
 # ========================================
-Write-Host "=" * 50
-Write-Host "📊 TEST RESULTS SUMMARY" -ForegroundColor Yellow
-Write-Host "=" * 50
+Write-Host ("=" * 50)
+Write-Host "[Summary] Test results" -ForegroundColor Yellow
+Write-Host ("=" * 50)
 
 $successCount = ($testResults | Where-Object { $_.Status -eq "SUCCESS" }).Count
 $failureCount = ($testResults | Where-Object { $_.Status -eq "FAILED" }).Count
 $totalTests = $testResults.Count
 
-Write-Host "✅ Successful Tests: $successCount/$totalTests" -ForegroundColor Green
-Write-Host "❌ Failed Tests: $failureCount/$totalTests" -ForegroundColor Red
+Write-Host "Successful Tests: $successCount/$totalTests" -ForegroundColor Green
+Write-Host "Failed Tests: $failureCount/$totalTests" -ForegroundColor Red
 Write-Host ""
 
 if ($failureCount -gt 0) {
-    Write-Host "❌ FAILED ENDPOINTS:" -ForegroundColor Red
+    Write-Host "Failed endpoints:" -ForegroundColor Red
     $testResults | Where-Object { $_.Status -eq "FAILED" } | ForEach-Object {
         Write-Host "   $($_.Method) $($_.Endpoint) - $($_.Description)" -ForegroundColor Red
         if ($_.Error) {
@@ -290,10 +305,10 @@ if ($failureCount -gt 0) {
 }
 
 if ($successCount -eq $totalTests) {
-    Write-Host "🎉 ALL TESTS PASSED! System is ready for demo!" -ForegroundColor Green
+    Write-Host "All tests passed. System is ready for demo." -ForegroundColor Green
 } else {
-    Write-Host "⚠️ Some tests failed. Review and fix issues before demo." -ForegroundColor Yellow
+    Write-Host "Some tests failed. Review and fix issues before demo." -ForegroundColor Yellow
 }
 
-Write-Host "=" * 50
-Write-Host "🏆 Testing Complete! Total Endpoints: $totalTests" -ForegroundColor Cyan
+Write-Host ("=" * 50)
+Write-Host "Testing complete. Total endpoints: $totalTests" -ForegroundColor Cyan

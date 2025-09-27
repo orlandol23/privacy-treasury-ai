@@ -1,0 +1,47 @@
+// Midnight Compact smart contract example
+// This demonstrates privacy-preserving treasury management
+
+contract DAOTreasury {
+    // Private state - balances are shielded
+    shielded balances: Map<Address, Uint256>;
+    shielded totalSupply: Uint256;
+    
+    // Public state - for transparency
+    public proposalCount: Uint256;
+    public lastRebalanceTime: Uint256;
+    
+    // Constructor
+    export constructor() {
+        totalSupply = Uint256::from(0);
+        proposalCount = Uint256::from(0);
+        lastRebalanceTime = block.timestamp;
+    }
+    
+    // Deposit funds privately
+    export function deposit(amount: Uint256) {
+        assert(amount > Uint256::from(0), "Amount must be positive");
+        
+        let sender = msg.sender;
+        let currentBalance = balances.get(sender).unwrap_or(Uint256::from(0));
+        
+        balances.insert(sender, currentBalance + amount);
+        totalSupply = totalSupply + amount;
+    }
+    
+    // Private withdrawal with ZK proof
+    export function withdraw(amount: Uint256) {
+        let sender = msg.sender;
+        let currentBalance = balances.get(sender).unwrap_or(Uint256::from(0));
+        
+        assert(currentBalance >= amount, "Insufficient balance");
+        
+        balances.insert(sender, currentBalance - amount);
+        totalSupply = totalSupply - amount;
+    }
+    
+    // Get balance privately (only caller can see their own)
+    export function getBalance() -> Uint256 {
+        let sender = msg.sender;
+        return balances.get(sender).unwrap_or(Uint256::from(0));
+    }
+}

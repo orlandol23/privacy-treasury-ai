@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdated, className = '' }) => {
+  console.info('[MultiSigApproval] render', { loading, count: Array.isArray(pendingTransactions) ? pendingTransactions.length : 'n/a' })
   const defaultTransactions = [
     {
       id: 'ABCDEFGHIJKLMPXVZZ',

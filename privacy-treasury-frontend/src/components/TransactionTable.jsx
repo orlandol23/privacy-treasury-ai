@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const TransactionTable = ({ transactions = [], loading = false, lastUpdated, className = '' }) => {
+  console.info('[TransactionTable] render', { loading, rows: Array.isArray(transactions) ? transactions.length : 'n/a' })
   const getTransactionIcon = (type) => {
     switch (type) {
       case 'outgoing':

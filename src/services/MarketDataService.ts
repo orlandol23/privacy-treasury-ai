@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ethers } from 'ethers';
 import { config } from '../config/environment';
 
 export interface TokenPrice {
@@ -222,12 +223,15 @@ export class MarketDataService {
     }
   }
 
-  private async getArbitrumGasPrice(): Promise<any> {
+  private async getArbitrumGasPrice(): Promise<number> {
     try {
-      const response = await axios.get('https://gasstation-mainnet.matic.network', { timeout: 4000 });
-      return response.data || { safeLow: 0.5, standard: 1.0 };
+      const ARBITRUM_RPC = process.env.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc';
+      const provider = new ethers.providers.JsonRpcProvider(ARBITRUM_RPC);
+      const gasPrice = await provider.getGasPrice();
+      return Number(ethers.utils.formatUnits(gasPrice, 'gwei'));
     } catch (error) {
-      return { safeLow: 0.5, standard: 1.0 };
+      console.error('Arbitrum gas price fetch failed, using estimate:', error);
+      return 15;
     }
   }
 }

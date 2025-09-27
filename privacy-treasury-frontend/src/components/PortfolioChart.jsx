@@ -2,6 +2,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { Skeleton } from '@/components/ui/skeleton'
 
 const PortfolioChart = ({ data = [], loading = false, className = '' }) => {
+  console.info('[PortfolioChart] render', { loading, count: Array.isArray(data) ? data.length : 'n/a' })
   const COLORS = [
     '#6c5ce7', // Electric Purple
     '#27ae60', // Success Green

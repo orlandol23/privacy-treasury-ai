@@ -7,7 +7,11 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "test": "echo 'Tests coming soon'"
+    "test": "pnpm test:smoke",
+    "validate:env": "node ./src/utils/validateEnvironment.js",
+  "test:smoke": "powershell -NoProfile -ExecutionPolicy Bypass -File ./quick-test.ps1",
+  "test:endpoints": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-endpoints.ps1",
+    "prepare:demo": "pnpm validate:env && pnpm test:smoke"
   },
   "keywords": [
     "DAO",

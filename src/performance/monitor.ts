@@ -165,26 +165,36 @@ export const performanceMonitor = new PerformanceMonitor();
 
 // Enhanced performance middleware with monitoring
 export const enhancedPerformanceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  
-  res.on('finish', () => {
-    const duration = Date.now() - start;
+  const start = process.hrtime.bigint();
+  const originalWriteHead = res.writeHead;
+
+  res.writeHead = function patchedWriteHead(this: Response, ...args: any[]) {
+    if (!res.headersSent) {
+      const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+      res.setHeader('X-Response-Time', `${durationMs.toFixed(2)}ms`);
+      res.setHeader('X-Server-Health', performanceMonitor.getHealthStatus().status);
+    }
+    res.writeHead = originalWriteHead;
+    return originalWriteHead.apply(this, args as any);
+  };
+
+  res.once('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const duration = Math.round(durationMs);
     performanceMonitor.recordResponseTime(duration);
-    
-    // Log slow requests
+
     if (duration > 1000) {
       console.log(`🐌 Slow request: ${req.method} ${req.path} - ${duration}ms`);
     }
-    
-    // Record errors
+
     if (res.statusCode >= 400) {
       performanceMonitor.recordError();
     }
-    
-    // Add performance headers
-    res.setHeader('X-Response-Time', `${duration}ms`);
-    res.setHeader('X-Server-Health', performanceMonitor.getHealthStatus().status);
   });
-  
+
+  res.once('close', () => {
+    res.writeHead = originalWriteHead;
+  });
+
   next();
 };

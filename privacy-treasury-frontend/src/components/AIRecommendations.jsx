@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated, issues = [], className = '' }) => {
+  console.info('[AIRecommendations] render', { loading, count: Array.isArray(recommendations) ? recommendations.length : 'n/a' })
   const getRecommendationIcon = (type) => {
     switch (type) {
       case 'rebalance':

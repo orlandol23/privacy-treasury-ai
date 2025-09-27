@@ -35,17 +35,30 @@ export const cacheMiddleware = (ttl: number = 300000) => { // 5 minutes default
 
 // Request/Response timing middleware
 export const performanceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  
+  const start = process.hrtime.bigint();
+  const originalWriteHead = res.writeHead;
+
+  res.writeHead = function writeHead(this: Response, ...args: any[]) {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    if (!res.headersSent) {
+      res.setHeader('X-Response-Time', `${durationMs.toFixed(2)}ms`);
+    }
+    // Restore original implementation to avoid wrapping multiple times
+    res.writeHead = originalWriteHead;
+    return originalWriteHead.apply(this, args as any);
+  };
+
   res.on('finish', () => {
-    const duration = Date.now() - start;
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const duration = Math.round(durationMs);
     const color = duration > 1000 ? '🔴' : duration > 500 ? '🟡' : '🟢';
     console.log(`${color} ${req.method} ${req.path} - ${duration}ms`);
-    
-    // Add performance headers
-    res.setHeader('X-Response-Time', `${duration}ms`);
   });
-  
+
+  res.on('close', () => {
+    res.writeHead = originalWriteHead;
+  });
+
   next();
 };
 

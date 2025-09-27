@@ -7,9 +7,67 @@ export class AIAutomationEngine {
   private name: string = "AI-AutomationEngine";
   private cronJobs: Map<string, cron.ScheduledTask> = new Map();
   private isRunning: boolean = false;
+  private llmProvider: string;
+  private llmConfig: any;
   
   constructor() {
     console.log(`🤖 ${this.name} initialized for advanced portfolio optimization`);
+    this.llmProvider = process.env.LLM_PROVIDER || 'groq';
+
+    if (this.llmProvider === 'groq' && process.env.GROQ_API_KEY) {
+      this.llmConfig = {
+        provider: 'groq',
+        apiKey: process.env.GROQ_API_KEY,
+        model: process.env.LLM_MODEL || 'mixtral-8x7b-32768',
+        endpoint: 'https://api.groq.com/openai/v1/chat/completions'
+      };
+      console.log('✅ Using Groq AI (free tier)');
+    } else if (process.env.OPENAI_API_KEY) {
+      this.llmConfig = {
+        provider: 'openai',
+        apiKey: process.env.OPENAI_API_KEY,
+        model: 'gpt-3.5-turbo',
+        endpoint: 'https://api.openai.com/v1/chat/completions'
+      };
+      console.log('⚠️ Using OpenAI (paid) - consider switching to Groq');
+    } else {
+      console.log('⚠️ No LLM API key found, using fallback responses');
+      this.llmConfig = { provider: 'fallback' };
+    }
+  }
+
+  async generateRecommendation(prompt: string): Promise<string> {
+    if (this.llmConfig.provider === 'fallback') {
+      return this.getFallbackRecommendation();
+    }
+
+    try {
+      const response = await fetch(this.llmConfig.endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.llmConfig.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: this.llmConfig.model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (response.ok) {
+  const data = await response.json() as any;
+        return data.choices?.[0]?.message?.content ?? this.getFallbackRecommendation();
+      }
+    } catch (error) {
+      console.error('LLM request failed:', error);
+    }
+    return this.getFallbackRecommendation();
+  }
+
+  private getFallbackRecommendation(): string {
+    return "Based on market analysis: Consider diversifying 30% into stablecoins for risk reduction, allocate 20% to high-yield DeFi protocols, and maintain 50% in core assets.";
   }
 
   // Machine Learning Model for Portfolio Optimization

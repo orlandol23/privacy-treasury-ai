@@ -58,6 +58,7 @@ export const useDashboardData = () => {
     if (!isMountedRef.current) return
 
     setLoading(true)
+  console.info('[Dashboard] load start')
     setError(null)
 
     const assetAllocation = DEFAULT_PORTFOLIO.map((asset) => ({
@@ -120,7 +121,7 @@ export const useDashboardData = () => {
           message: result.reason?.message || 'Failed to load data'
         }))
 
-      setData({
+      const nextData = {
         portfolio,
         recommendations,
         mlOptimization,
@@ -135,15 +136,21 @@ export const useDashboardData = () => {
         gameAnalytics,
         degaStatus,
         issues
-      })
+      }
+
+  console.info('[Dashboard] data loaded', nextData)
+
+      setData(nextData)
 
       setError(null)
     } catch (err) {
       if (isMountedRef.current) {
-  setError(err.message || 'Unable to load dashboard data')
+        setError(err.message || 'Unable to load dashboard data')
+  console.error('[Dashboard] load error', err)
       }
     } finally {
       if (isMountedRef.current) {
+  console.info('[Dashboard] load end')
         setLoading(false)
       }
     }
@@ -510,6 +517,14 @@ export const useDashboardData = () => {
       systemStatus
     }
   }, [data])
+
+  useEffect(() => {
+    console.info('[Dashboard] derived snapshot', derived)
+  }, [derived])
+
+  useEffect(() => {
+    console.info('[Dashboard] loading state', loading)
+  }, [loading])
 
   const lastUpdated = data.portfolio?.timestamp
     ?? data.systemPerformance?.timestamp
