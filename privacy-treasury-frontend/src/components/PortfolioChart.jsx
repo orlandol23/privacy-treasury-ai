@@ -17,7 +17,7 @@ const PortfolioChart = ({ data = [], loading = false, className = '' }) => {
         <div className="treasury-card p-3 shadow-lg">
           <p className="text-sm font-medium text-foreground">{data.name}</p>
           <p className="text-lg font-bold text-primary">${data.value.toLocaleString()}</p>
-          <p className="text-sm text-muted-foreground">{data.percentage}% do portfólio</p>
+          <p className="text-sm text-muted-foreground">{data.percentage}% of total portfolio</p>
         </div>
       )
     }
@@ -55,7 +55,7 @@ const PortfolioChart = ({ data = [], loading = false, className = '' }) => {
   return (
     <div className={`treasury-card ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Alocação do Portfólio</h3>
+  <h3 className="text-lg font-semibold text-foreground">Portfolio Allocation</h3>
         {loading && <Skeleton className="h-4 w-20 bg-muted/40" />}
       </div>
       
@@ -86,7 +86,7 @@ const PortfolioChart = ({ data = [], loading = false, className = '' }) => {
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-sm text-muted-foreground">Sem dados suficientes para gerar o gráfico.</p>
+          <p className="text-sm text-muted-foreground">Not enough data to render the chart.</p>
         )}
       </div>
 

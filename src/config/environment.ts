@@ -16,7 +16,10 @@ export const config = {
   // Blockchain configuration
   blockchain: {
     midnightRpcUrl: process.env.MIDNIGHT_RPC_URL || 'https://testnet.midnight.network',
-    degaApiEndpoint: process.env.DEGA_API_ENDPOINT || 'https://api.dega.org'
+    degaApiEndpoint: process.env.DEGA_API_ENDPOINT || 'https://api.dega.org',
+    ethereumRpcUrl: process.env.ETH_RPC_URL,
+    polygonRpcUrl: process.env.POLYGON_RPC_URL,
+    arbitrumRpcUrl: process.env.ARBITRUM_RPC_URL
   },
 
   // Security configuration
@@ -27,8 +30,15 @@ export const config = {
 
   // AI Services (optional)
   ai: {
+    groqApiKey: process.env.GROQ_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY
+  },
+
+  // Market data services
+  marketData: {
+    coingeckoApiKey: process.env.COINGECKO_API_KEY,
+    zapperApiKey: process.env.ZAPPER_API_KEY
   },
 
   // Database (if needed in future)
@@ -62,6 +72,11 @@ export const validateEnvironment = () => {
     console.log(`   - Server: ${config.server.nodeEnv} mode on port ${config.server.port}`);
     console.log(`   - Midnight RPC: ${config.blockchain.midnightRpcUrl}`);
     console.log(`   - DEGA API: ${config.blockchain.degaApiEndpoint}`);
+    console.log(`   - Ethereum RPC configured: ${Boolean(config.blockchain.ethereumRpcUrl)}`);
+    console.log(`   - Polygon RPC configured: ${Boolean(config.blockchain.polygonRpcUrl)}`);
+    console.log(`   - Arbitrum RPC configured: ${Boolean(config.blockchain.arbitrumRpcUrl)}`);
+    console.log(`   - CoinGecko key configured: ${Boolean(config.marketData.coingeckoApiKey)}`);
+    console.log(`   - Groq configured: ${Boolean(config.ai.groqApiKey)}`);
   }
 };
 

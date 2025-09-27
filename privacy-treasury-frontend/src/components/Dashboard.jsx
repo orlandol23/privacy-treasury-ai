@@ -97,7 +97,7 @@ const Dashboard = () => {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-1">
-            Dashboard do Tesouro
+            Treasury Dashboard
           </h1>
           <p className="text-muted-foreground">
             Real-time monitoring of allocation, risk, AI and multi-chain operations
@@ -107,7 +107,7 @@ const Dashboard = () => {
           {formattedLastUpdated && (
             <div className="text-xs text-muted-foreground flex items-center gap-2">
               <Clock className="w-4 h-4" />
-              Atualizado {formattedLastUpdated}
+              Updated {formattedLastUpdated}
             </div>
           )}
           <Button
@@ -118,7 +118,7 @@ const Dashboard = () => {
             disabled={loading}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Atualizar
+            Refresh
           </Button>
         </div>
       </div>
@@ -126,9 +126,9 @@ const Dashboard = () => {
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Erro ao carregar dados</AlertTitle>
+          <AlertTitle>Error loading data</AlertTitle>
           <AlertDescription>
-            {error}. Tente novamente ou verifique a conectividade com a API do PrivacyTreasuryAI.
+            {error}. Try again or verify connectivity to the PrivacyTreasuryAI API.
           </AlertDescription>
         </Alert>
       )}
@@ -136,7 +136,7 @@ const Dashboard = () => {
       {!error && issues && issues.length > 0 && (
         <Alert className="border-warning-orange/40 bg-warning-orange/10">
           <AlertCircle className="h-4 w-4 text-warning-orange" />
-          <AlertTitle>Alguns serviços retornaram avisos</AlertTitle>
+          <AlertTitle>Some services returned warnings</AlertTitle>
           <AlertDescription>
             {issues.slice(0, 2).map((issue, index) => (
               <p key={index}>{issue.message}</p>
@@ -188,13 +188,13 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="treasury-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Insights de Mercado</h3>
+            <h3 className="text-lg font-semibold text-foreground">Market Insights</h3>
             <Zap className="w-5 h-5 text-primary" />
           </div>
           <div className="space-y-3">
             {marketSignals.length === 0 && !loading && (
               <p className="text-sm text-muted-foreground">
-                Nenhum insight prioritário no momento. O motor de yield continua monitorando oportunidades.
+                No priority insights right now. The yield engine continues monitoring opportunities.
               </p>
             )}
 
@@ -213,7 +213,7 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground">{signal.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-success-green">{signal.apy ? `${signal.apy}% APY` : 'Oportunidade'}</p>
+                  <p className="text-sm font-semibold text-success-green">{signal.apy ? `${signal.apy}% APY` : 'Opportunity'}</p>
                   <p className="text-xs text-muted-foreground">{signal.network}</p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ const Dashboard = () => {
 
         <div className="treasury-card space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Status do Sistema</h3>
+            <h3 className="text-lg font-semibold text-foreground">System Status</h3>
             <GaugeCircle className="w-5 h-5 text-primary" />
           </div>
 
@@ -231,7 +231,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-3">
               <Activity className="w-5 h-5 text-success-green" />
               <div>
-                <p className="text-sm font-medium text-foreground">Saúde Geral</p>
+                <p className="text-sm font-medium text-foreground">Overall Health</p>
                 <p className="text-xs text-muted-foreground">{formatStatusLabel(systemStatus.performance?.status)}</p>
               </div>
             </div>
@@ -257,11 +257,11 @@ const Dashboard = () => {
 
           {gasOptimization && Object.keys(gasOptimization).length > 0 && (
             <div className="pt-3 border-t border-border/60">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Otimização de Gas (estimativa)</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Gas Optimization (estimate)</p>
               <div className="space-y-3 text-xs">
                 {Object.entries(gasOptimization).map(([chain, stats]) => {
                   const savings = stats?.savings ?? (stats?.recommendedGwei ? `${stats.recommendedGwei} gwei` : stats?.recommendedLamports ? `${stats.recommendedLamports} lamports` : '—')
-                  const optimalTime = stats?.optimalTime ? `Melhor horário: ${stats.optimalTime}` : null
+                  const optimalTime = stats?.optimalTime ? `Best window: ${stats.optimalTime}` : null
                   return (
                     <div key={chain} className="flex items-center justify-between gap-3">
                       <div>
@@ -271,10 +271,10 @@ const Dashboard = () => {
                       <div className="text-right">
                         <p className="text-sm font-semibold text-success-green">{savings}</p>
                         {stats?.recommendedGwei && (
-                          <p className="text-[11px] text-muted-foreground/70">Recomendado: {stats.recommendedGwei} gwei</p>
+                          <p className="text-[11px] text-muted-foreground/70">Recommended: {stats.recommendedGwei} gwei</p>
                         )}
                         {stats?.recommendedLamports && (
-                          <p className="text-[11px] text-muted-foreground/70">Recomendado: {stats.recommendedLamports} lamports</p>
+                          <p className="text-[11px] text-muted-foreground/70">Recommended: {stats.recommendedLamports} lamports</p>
                         )}
                       </div>
                     </div>

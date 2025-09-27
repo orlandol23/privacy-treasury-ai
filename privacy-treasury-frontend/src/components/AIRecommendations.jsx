@@ -26,9 +26,9 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
 
   const priorityLabel = (priority) => {
     const normalized = priority?.toLowerCase?.() ?? 'medium'
-    if (normalized === 'high') return 'Alta'
-    if (normalized === 'low') return 'Baixa'
-    return 'Média'
+    if (normalized === 'high') return 'High'
+    if (normalized === 'low') return 'Low'
+    return 'Medium'
   }
 
   return (
@@ -40,8 +40,8 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
             <Brain className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Recomendações da IA</h3>
-            <p className="text-sm text-muted-foreground">Insights baseados em machine learning</p>
+            <h3 className="text-lg font-semibold text-foreground">AI Recommendations</h3>
+            <p className="text-sm text-muted-foreground">Machine-learning powered insights</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -67,7 +67,7 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
 
         {!loading && displayRecommendations.length === 0 && (
           <div className="p-4 bg-muted/20 border border-dashed border-border rounded-lg text-sm text-muted-foreground">
-            Nenhuma nova recomendação da IA no momento. O motor continuará analisando o mercado.
+            No new AI recommendations right now. The engine will keep scanning the market.
           </div>
         )}
 
@@ -85,7 +85,7 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
                       {recommendation.title}
                     </h4>
                     <span className={`text-xs font-medium ${getConfidenceColor(recommendation.confidence)}`}>
-                      {Math.min(100, Math.max(0, recommendation.confidence))}% confiança
+                      {Math.min(100, Math.max(0, recommendation.confidence))}% confidence
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
@@ -103,7 +103,7 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
                       size="sm" 
                       className="h-8 px-4 text-xs"
                     >
-                      Detalhes
+                      Details
                     </Button>
                   </div>
                 </div>
@@ -140,13 +140,13 @@ const AIRecommendations = ({ recommendations = [], loading = false, lastUpdated,
             )}
           </div>
           <Button variant="ghost" size="sm" className="text-xs">
-            Ver Todas as Recomendações
+            View All Recommendations
           </Button>
         </div>
 
         {!loading && issues.length > 0 && (
           <div className="mt-3 p-3 rounded-lg bg-warning-orange/10 border border-warning-orange/40 text-xs text-warning-orange">
-            Alguns serviços de suporte estão instáveis: {issues.slice(0, 2).map((item) => item.message).join('; ')}
+            Some supporting services are unstable: {issues.slice(0, 2).map((item) => item.message).join('; ')}
           </div>
         )}
       </div>

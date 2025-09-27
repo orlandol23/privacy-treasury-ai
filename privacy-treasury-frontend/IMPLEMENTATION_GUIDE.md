@@ -57,31 +57,31 @@ The frontend needs to know where your API is running. Let's configure this using
     > **GitHub Copilot Prompt:**
     > "Create a JavaScript file that exports an Axios instance. The base URL for Axios should be read from the `VITE_API_BASE_URL` environment variable. Also, export functions for each of the main API endpoints in the backend: `analyze-portfolio`, `ai-recommendations`, `private-transaction`, `ml-optimization`, `risk-assessment`, and `yield-optimization`. Each function should take the required payload as an argument and handle potential errors with a try-catch block, logging the error to the console."
 
-### Passo 3: Integrar os Dados da API nos Componentes
+### Step 3: Integrate API Data into the Components
 
-Agora, vamos usar o serviço de API que você criou para buscar dados reais nos componentes React.
+Now that the API service is ready, wire real data into the React components.
 
-1.  **Abra o arquivo `frontend/src/components/Dashboard.jsx`**.
+1.  **Open `frontend/src/components/Dashboard.jsx`.**
 
-2.  **Use o hook `useState` e `useEffect`** para buscar os dados quando o componente for montado. Peça ao Copilot para ajudá-lo.
+2.  **Use `useState` and `useEffect`** to fetch data when the component mounts. Lean on Copilot if you want help scaffolding the hooks.
 
-    > **Prompt para GitHub Copilot (no topo do componente `Dashboard`):**
+    > **GitHub Copilot Prompt (add near the top of `Dashboard.jsx`):**
     > "Import the `api` service. Use the `useState` and `useEffect` hooks to fetch data from the `/api/analyze-portfolio` and `/api/ai-recommendations` endpoints when the component mounts. Store the results in state variables called `portfolioData` and `recommendations`. Add loading and error states as well."
 
-3.  **Passe os dados do estado para os componentes filhos**. Por exemplo, passe a variável `portfolioData` para o componente `<PortfolioChart />`.
+3.  **Pass the fetched data to child components.** For example, provide `portfolioData` to `<PortfolioChart />`.
 
     ```jsx
-    // Exemplo de como ficaria
+    // Example implementation
     const [portfolioData, setPortfolioData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
       const fetchData = async () => {
         try {
-          const response = await api.analyzePortfolio({ assets: [...] }); // Passe os assets necessários
+          const response = await api.analyzePortfolio({ assets: [...] }); // Provide the required assets
           setPortfolioData(response.data);
         } catch (error) {
-          console.error("Failed to fetch portfolio data", error);
+          console.error('Failed to fetch portfolio data', error);
         } finally {
           setLoading(false);
         }
@@ -90,33 +90,31 @@ Agora, vamos usar o serviço de API que você criou para buscar dados reais nos 
     }, []);
 
     if (loading) {
-      return <div>Loading...</div>; // Ou um componente de loading mais sofisticado
+      return <div>Loading...</div>; // Replace with a richer loading component if desired
     }
 
     return (
       <div className="p-6 space-y-6">
-        {/* ... o resto do seu JSX ... */}
+        {/* ...rest of your JSX... */}
         <PortfolioChart data={portfolioData} />
         {/* ... */}
       </div>
     );
     ```
 
-### Passo 4: Substituir o Frontend Antigo
+### Step 4: Replace the Legacy Frontend
 
-Se o seu projeto já tinha um frontend, você precisará configurar o seu servidor para servir a nova aplicação React.
+If the project shipped with an older frontend, configure the server to serve the new React build.
 
-1.  **Atualize o seu `package.json` principal** (na raiz do projeto) para instalar e construir ambos os projetos (backend e frontend) com um único comando.
+1.  **Update the root `package.json`** (at the project root) so you can install and build both backend and frontend with a single command.
 
-    > **Prompt para GitHub Copilot:**
+    > **GitHub Copilot Prompt:**
     > "Modify this `package.json` file. Add a `postinstall` script that runs `pnpm install` inside the `frontend` directory. Add a `build` script that runs the build command for both the backend (TypeScript) and the frontend. Add a `start` script that concurrently starts the backend server and the frontend dev server."
 
-2.  **Configure o Express para servir os arquivos estáticos do React em produção**. No seu arquivo `src/index.ts` (backend), adicione o seguinte:
+2.  **Serve the React build from Express in production.** Add the snippet below to `src/index.ts` after the API routes:
 
     ```typescript
     import path from 'path';
-
-    // ... (depois de todas as suas rotas de API)
 
     if (process.env.NODE_ENV === 'production') {
       app.use(express.static(path.join(__dirname, '../../frontend/dist')));
@@ -129,8 +127,8 @@ Se o seu projeto já tinha um frontend, você precisará configurar o seu servid
 
 ---
 
-## 🎨 Design System e Boas Práticas
+## 🎨 Design System and Best Practices
 
-- **Consistência é Chave**: Utilize as classes de utilitários e componentes customizados definidos em `App.css` (ex: `treasury-card`, `treasury-button-primary`). Isso garante que a UI permaneça consistente.
-- **Responsividade**: Todos os componentes foram construídos com uma abordagem mobile-first usando as classes responsivas do Tailwind CSS (ex: `md:grid-cols-2`, `lg:col-span-2`).
+- **Consistency is Key**: Reuse the utility classes and custom components defined in `App.css` (for example, `treasury-card`, `treasury-button-primary`) to keep the UI cohesive.
+- **Responsiveness**: Every component follows a mobile-first approach and leverages Tailwind-style responsive classes (e.g., `md:grid-cols-2`, `lg:col-span-2`).
 This guide should provide a solid foundation for you to integrate and build upon the new frontend. Happy development. Good luck with your demo!

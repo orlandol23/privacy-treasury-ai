@@ -1,6 +1,11 @@
 import { AIAutomationEngine } from './AIAutomationEngine';
 import { CrossChainOrchestrator } from './CrossChainOrchestrator';
 import { DEGAMCPService } from './DEGAMCPService';
+import { marketDataService } from './services/MarketDataService';
+import { crossChainService } from './services/CrossChainService';
+import { midnightService } from './services/MidnightService';
+import { degaService } from './services/DEGAService';
+import { elizaAgent } from './agents/ElizaAgent';
 
 interface Asset {
   symbol: string;
@@ -45,36 +50,45 @@ export class TreasuryAgent {
     this.aiEngine = new AIAutomationEngine();
     this.crossChainOrchestrator = new CrossChainOrchestrator();
     this.degaMCPService = new DEGAMCPService();
+
+    void midnightService.connect().then(connected => {
+      console.log(connected ? '🌙 Midnight network connected' : '🌙 Midnight network fallback mode');
+    });
+
+    void degaService.registerAgent({
+      id: 'privacy-treasury-ai',
+      name: 'PrivacyTreasuryAI',
+      type: 'treasury-automation',
+      capabilities: ['portfolio-analysis', 'bridge-ops', 'privacy-transactions'],
+      status: 'online'
+    });
   }
   
   // Analyze portfolio and generate insights
   async analyzePortfolio(assets: AssetInput[]): Promise<PortfolioAnalysis> {
     const normalizedAssets = this.normalizeAssetInputs(assets);
-    const assetsWithPercentage = this.ensurePercentages(normalizedAssets);
+    const enrichedAssets = await this.attachMarketPrices(normalizedAssets);
+    const assetsWithPercentage = this.ensurePercentages(enrichedAssets);
+
+    const aiInsights = await elizaAgent.analyzePortfolio(assetsWithPercentage);
     const totalValueUSD = assetsWithPercentage.reduce((sum, asset) => sum + asset.valueUSD, 0);
-    
-    // Calculate risk and diversification scores
-    const riskScore = this.calculateRiskScore(assetsWithPercentage);
-    const diversificationScore = this.calculateDiversificationScore(assetsWithPercentage);
-    
-    // Generate AI-powered recommendations
-    const recommendations = this.generateRecommendations(
-      assetsWithPercentage, 
-      riskScore, 
-      diversificationScore
+
+    const baselineRecommendations = this.generateRecommendations(
+      assetsWithPercentage,
+      aiInsights.riskScore,
+      aiInsights.diversificationScore
     );
-    
-    // Identify critical alerts
-    const alerts = this.identifyAlerts(assetsWithPercentage);
-    
+
+    const alerts = Array.from(new Set([...(aiInsights.alerts || []), ...this.identifyAlerts(assetsWithPercentage)]));
+
     return {
       totalValueUSD,
       assets: assetsWithPercentage,
-      riskScore,
-      diversificationScore,
-      recommendations,
+      riskScore: aiInsights.riskScore,
+      diversificationScore: aiInsights.diversificationScore,
+      recommendations: aiInsights.recommendations.length > 0 ? aiInsights.recommendations : baselineRecommendations,
       alerts,
-      timestamp: new Date().toISOString()
+      timestamp: aiInsights.metadata.timestamp
     };
   }
   
@@ -85,30 +99,15 @@ export class TreasuryAgent {
     amount: number,
     assetType: string
   ): Promise<PrivateTransaction> {
-    // Generate unique transaction ID
-    const transactionId = this.generateTransactionId();
-    
-    // Generate zero-knowledge proof using Midnight
-    const zkProof = this.generateZKProof(from, to, amount);
-    
-    // Create shielded transaction
+    const transaction = await midnightService.createPrivateTransaction(from, to, amount, assetType);
     return {
-      transactionId,
-      status: 'pending',
+      transactionId: transaction.txHash,
+      status: transaction.status,
       type: 'shielded',
-      zkProof,
+      zkProof: transaction.zkProof,
       midnightProtocol: true,
-      publicData: {
-        timestamp: new Date().toISOString(),
-        assetType,
-        network: 'midnight-testnet',
-        privacyLevel: 'full'
-      },
-      privateData: {
-        encrypted: true,
-        protocol: 'Midnight ZK-SNARK',
-        message: 'Transaction data protected by zero-knowledge proofs'
-      }
+      publicData: transaction.publicData,
+      privateData: transaction.privateData
     };
   }
   
@@ -117,64 +116,25 @@ export class TreasuryAgent {
     currentAllocationInput: AssetInput[],
     marketConditions: any
   ) {
-    const currentAllocation = this.ensurePercentages(
+    const enriched = await this.attachMarketPrices(
       this.normalizeAssetInputs(currentAllocationInput)
     );
 
-    // Market analysis
-    const marketTrend = marketConditions?.trend || 'neutral';
-    const volatility = marketConditions?.volatility || 'medium';
-    
-    const recommendations = [];
-    
-    // AI logic for recommendations based on market conditions
-    if (marketTrend === 'bearish' && volatility === 'high') {
-      recommendations.push({
-        action: 'INCREASE_STABLES',
-        asset: 'USDC',
-        reason: 'High volatility detected, increase stable coin allocation for risk management',
-        priority: 'HIGH'
-      });
-    }
-    
-    // Check for concentration risk
-    const hasConcentrationRisk = currentAllocation.some(a => a.percentage && a.percentage > 50);
-    if (hasConcentrationRisk) {
-      recommendations.push({
-        action: 'DIVERSIFY',
-        asset: 'PORTFOLIO',
-        reason: 'Concentration risk detected, consider diversifying holdings',
-        priority: 'MEDIUM'
-      });
-    }
-    
-    // Yield optimization opportunity
-    if (marketTrend === 'bullish') {
-      recommendations.push({
-        action: 'YIELD_FARMING',
-        asset: 'ETH',
-        reason: 'Bullish market conditions, consider yield farming opportunities',
-        priority: 'LOW'
-      });
-    }
-    
-    // Default recommendation if no specific actions needed
-    if (recommendations.length === 0) {
-      recommendations.push({
-        action: 'HOLD',
-        asset: 'ALL',
-        reason: 'Portfolio is well-balanced for current market conditions',
-        priority: 'INFO'
-      });
-    }
-    
+    const analysis = await elizaAgent.analyzePortfolio(enriched);
+    const formattedRecommendations = analysis.recommendations.map((text, index) => ({
+      action: 'ANALYZE',
+      asset: 'PORTFOLIO',
+      reason: text,
+      priority: index === 0 ? 'HIGH' : index === 1 ? 'MEDIUM' : 'LOW'
+    }));
+
     return {
-      timestamp: new Date().toISOString(),
+      timestamp: analysis.metadata.timestamp,
       marketConditions,
-      recommendations,
-      confidenceScore: 0.85,
-      riskAssessment: volatility === 'high' ? 'ELEVATED' : 'NORMAL',
-      aiModel: 'ElizaOS-Treasury-v1',
+      recommendations: formattedRecommendations,
+      confidenceScore: analysis.confidence,
+      riskAssessment: analysis.riskScore > 70 ? 'ELEVATED' : 'NORMAL',
+      aiModel: analysis.metadata.model,
       nextReviewIn: '24 hours'
     };
   }
@@ -233,15 +193,15 @@ export class TreasuryAgent {
   
   // Agent-to-agent communication (DEGA MCP feature)
   async communicateWithAgent(message: string, targetAgent: string) {
-    // Simulate agent communication using DEGA MCP
+    const response = await degaService.sendMessage(targetAgent, message);
     return {
-      messageId: `msg_${Date.now()}`,
+      messageId: response.id,
       from: this.name,
       to: targetAgent,
       message,
       protocol: 'DEGA_MCP',
-      timestamp: new Date().toISOString(),
-      response: `Agent ${targetAgent} acknowledged: Processing treasury operation request`,
+      timestamp: new Date(response.timestamp).toISOString(),
+      response: `Agent ${targetAgent} acknowledged message` ,
       status: 'delivered'
     };
   }
@@ -340,6 +300,24 @@ export class TreasuryAgent {
     return alerts;
   }
 
+  private async attachMarketPrices(assets: Asset[]): Promise<Asset[]> {
+    try {
+      const symbols = assets.map(asset => asset.symbol.toUpperCase());
+      const prices = await marketDataService.getTokenPrices(symbols);
+      return assets.map(asset => {
+        const tokenPrice = prices.get(asset.symbol.toUpperCase());
+        const amount = asset.amount ?? 0;
+        const valueUSD = tokenPrice ? (asset.valueUSD && asset.valueUSD > 0 ? asset.valueUSD : tokenPrice.price * amount) : asset.valueUSD;
+        return {
+          ...asset,
+          valueUSD: valueUSD ?? amount
+        };
+      });
+    } catch (error) {
+      return assets;
+    }
+  }
+
   private normalizeAssetInputs(assets: AssetInput[]): Asset[] {
     return assets.map(asset => ({
       symbol: asset.symbol,
@@ -379,7 +357,7 @@ export class TreasuryAgent {
   }
   
   private generateZKProof(from: string, to: string, amount: number): string {
-    // Simulação de zero-knowledge proof
+  // Zero-knowledge proof simulation
     const hash = `${from}_${to}_${amount}_${Date.now()}`;
     return `zk_proof_${Buffer.from(hash).toString('base64').substr(0, 20)}`;
   }
@@ -498,21 +476,13 @@ export class TreasuryAgent {
   async getMultiChainBalances(walletAddress: string): Promise<any> {
     try {
       console.log('🌉 Fetching multi-chain portfolio balances...');
-      const assets = await this.crossChainOrchestrator.getMultiChainBalances(walletAddress);
-      const aggregated = this.crossChainOrchestrator.aggregateBalances(assets);
-      
+      const balances = await crossChainService.getMultiChainBalance(walletAddress);
       return {
         success: true,
         timestamp: new Date().toISOString(),
         walletAddress,
-        multiChainPortfolio: {
-          totalValueUSD: aggregated.totalValueUSD,
-          chainsUsed: aggregated.chainsUsed,
-          uniqueAssets: aggregated.uniqueAssets,
-          diversificationRating: aggregated.diversificationRating,
-          assets: aggregated.aggregatedAssets
-        },
-        message: `Found assets across ${aggregated.chainsUsed} chains`
+        multiChainPortfolio: balances,
+        message: `Retrieved balances across ${Object.keys(balances).length} chains`
       };
     } catch (error) {
       console.error('Multi-chain balance error:', error);
@@ -530,19 +500,19 @@ export class TreasuryAgent {
   ): Promise<any> {
     try {
       console.log(`🌉 Initiating cross-chain bridge: ${amount} ${asset} ${fromChain} → ${toChain}`);
-      const bridgeOperation = await this.crossChainOrchestrator.initiateBridge(
+      const bridgeOperation = await crossChainService.initiateBridge({
         fromChain,
         toChain,
         asset,
         amount,
-        recipientAddress
-      );
+        recipient: recipientAddress
+      });
       
       return {
         success: true,
         timestamp: new Date().toISOString(),
         bridgeOperation,
-        message: `Bridge operation initiated: ${bridgeOperation.id}`
+        message: `Bridge operation initiated: ${bridgeOperation.txHash}`
       };
     } catch (error) {
       console.error('Cross-chain bridge error:', error);
@@ -554,12 +524,20 @@ export class TreasuryAgent {
   async getGasOptimization(): Promise<any> {
     try {
       console.log('⛽ Analyzing gas optimization opportunities...');
-      const gasOptimization = await this.crossChainOrchestrator.optimizeGas();
-      
+      const [providerGas, onChainGas] = await Promise.all([
+        marketDataService.getGasPrices(),
+        crossChainService.getGasPrices()
+      ]);
+
+      const combined = {
+        marketData: providerGas,
+        onChain: onChainGas
+      };
+
       return {
         success: true,
         timestamp: new Date().toISOString(),
-        gasOptimization,
+        gasOptimization: combined,
         message: 'Gas optimization analysis completed'
       };
     } catch (error) {
@@ -670,7 +648,7 @@ export class TreasuryAgent {
   async communicateMCPAgent(targetAgent: string, method: string, params: any): Promise<any> {
     try {
       console.log(`📡 Communicating with MCP agent: ${targetAgent} - ${method}`);
-      const response = await this.degaMCPService.sendMCPMessage(targetAgent, method, params);
+      const response = await degaService.requestTask(targetAgent, method, params);
       
       return {
         success: true,

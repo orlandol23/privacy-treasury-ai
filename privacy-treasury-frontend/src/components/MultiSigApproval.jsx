@@ -8,7 +8,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
       id: 'ABCDEFGHIJKLMPXVZZ',
       amount: 250,
       asset: 'ETH',
-      description: 'Rebalanceamento de portfólio',
+  description: 'Portfolio rebalancing',
       requiredSignatures: 3,
       currentSignatures: 2,
       signers: [
@@ -23,7 +23,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
       id: 'ZBCDEFGHIJKLMNOPRSTUD',
       amount: 1200,
       asset: 'USDC',
-      description: 'Distribuição de grants Q2',
+  description: 'Q2 grant distribution',
       requiredSignatures: 3,
       currentSignatures: 1,
       signers: [
@@ -65,8 +65,8 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
             <Users className="w-6 h-6 text-warning-orange" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Aprovação Multi-Signature</h3>
-            <p className="text-sm text-muted-foreground">Transações pendentes de aprovação</p>
+            <h3 className="text-lg font-semibold text-foreground">Multi-Signature Approvals</h3>
+            <p className="text-sm text-muted-foreground">Transactions awaiting approval</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -75,7 +75,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
           ) : (
             <>
               <div className="w-2 h-2 bg-warning-orange rounded-full animate-pulse"></div>
-              <span className="text-xs text-muted-foreground">{displayTransactions.length} pendentes</span>
+              <span className="text-xs text-muted-foreground">{displayTransactions.length} pending</span>
             </>
           )}
         </div>
@@ -108,8 +108,8 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                   <span>Value: {transaction.amount?.toLocaleString?.('en-US', { maximumFractionDigits: 2 }) ?? transaction.amount} {transaction.asset}</span>
-                  <span>Criado: {transaction.createdAt}</span>
-                  <span>Expira: {transaction.expiresAt}</span>
+                  <span>Created: {transaction.createdAt}</span>
+                  <span>Expires: {transaction.expiresAt}</span>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
             <div className="mb-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-muted-foreground">
-                  Assinaturas: {transaction.currentSignatures}/{transaction.requiredSignatures}
+                  Signatures: {transaction.currentSignatures}/{transaction.requiredSignatures}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {Math.round(getProgressPercentage(transaction.currentSignatures, transaction.requiredSignatures))}%
@@ -136,7 +136,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
 
             {/* Signers */}
             <div className="mb-4">
-              <p className="text-xs text-muted-foreground mb-2">Signatários:</p>
+              <p className="text-xs text-muted-foreground mb-2">Signers:</p>
               <div className="grid grid-cols-3 gap-2">
                 {transaction.signers?.map((signer, index) => (
                   <SignerStatus key={index} signer={signer} />
@@ -152,7 +152,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
                   className="treasury-button-primary h-8 px-4 text-xs"
                 >
                   <Shield className="w-3 h-3 mr-1" />
-                  Aprovar
+                  Approve
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -160,11 +160,11 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
                   className="h-8 px-4 text-xs text-error-red hover:text-error-red"
                 >
                   <X className="w-3 h-3 mr-1" />
-                  Rejeitar
+                  Reject
                 </Button>
               </div>
               <Button variant="ghost" size="sm" className="h-8 px-4 text-xs">
-                Ver Detalhes
+                View Details
               </Button>
             </div>
           </div>
@@ -177,7 +177,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
           <div className="flex items-center space-x-2">
             <Shield className="w-4 h-4 text-primary" />
             <span className="text-xs text-muted-foreground">
-              Midnight Network: Transações privadas habilitadas
+              Midnight Network: Private transactions enabled
             </span>
           </div>
           <div className="flex items-center space-x-3">
@@ -185,7 +185,7 @@ const MultiSigApproval = ({ pendingTransactions = [], loading = false, lastUpdat
               <span className="text-xs text-muted-foreground">Updated {new Date(lastUpdated).toLocaleTimeString('en-US')}</span>
             ) : null}
             <Button variant="ghost" size="sm" className="text-xs">
-              Histórico de Aprovações
+              Approval History
             </Button>
           </div>
         </div>

@@ -30,13 +30,13 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
   const getStatusText = (status) => {
     switch (status) {
       case 'completed':
-        return 'Concluída'
+        return 'Completed'
       case 'pending':
-        return 'Pendente'
+        return 'Pending'
       case 'failed':
-        return 'Falhou'
+        return 'Failed'
       default:
-        return 'Desconhecido'
+        return 'Unknown'
     }
   }
 
@@ -100,13 +100,13 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
     <div className={`treasury-card ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground">Transações Recentes</h3>
+  <h3 className="text-lg font-semibold text-foreground">Recent Transactions</h3>
         <div className="flex items-center space-x-3">
           {lastUpdated && !loading ? (
             <span className="text-xs text-muted-foreground">Updated {new Date(lastUpdated).toLocaleTimeString('en-US')}</span>
           ) : null}
           <Button variant="ghost" size="sm" className="text-xs">
-            Ver Todas
+            View All
           </Button>
         </div>
       </div>
@@ -116,11 +116,11 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
         <table className="treasury-table">
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Descrição</th>
+              <th>Date</th>
+              <th>Description</th>
               <th>Value</th>
               <th>Status</th>
-              <th>Ações</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -172,7 +172,7 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
                   </td>
                   <td>
                     <Button variant="ghost" size="sm" className="text-xs">
-                      Detalhes
+                      Details
                     </Button>
                   </td>
                 </tr>
@@ -185,7 +185,7 @@ const TransactionTable = ({ transactions = [], loading = false, lastUpdated, cla
       {/* Footer */}
       <div className="mt-4 pt-4 border-t border-border">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Mostrando {displayTransactions.length} transações</span>
+          <span>Showing {displayTransactions.length} transactions</span>
           <span>{lastUpdated ? `Last update: ${new Date(lastUpdated).toLocaleTimeString('en-US')}` : 'Real-time updates'}</span>
         </div>
       </div>

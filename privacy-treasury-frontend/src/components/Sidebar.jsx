@@ -19,58 +19,58 @@ const Sidebar = () => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
-      description: 'Visão geral do tesouro'
+      description: 'Treasury overview'
     },
     {
       id: 'portfolio',
-      label: 'Portfólio',
+      label: 'Portfolio',
       icon: PieChart,
       description: 'Asset allocation'
     },
     {
       id: 'transactions',
-      label: 'Transações',
+      label: 'Transactions',
       icon: ArrowUpDown,
-      description: 'Histórico e pendências'
+      description: 'History and pending items'
     },
     {
       id: 'ai-insights',
-      label: 'IA Insights',
+      label: 'AI Insights',
       icon: Brain,
-      description: 'Recomendações inteligentes'
+      description: 'Intelligent recommendations'
     },
     {
       id: 'governance',
-      label: 'Governança',
+      label: 'Governance',
       icon: Users,
-      description: 'Propostas e votações'
+      description: 'Proposals and voting'
     },
     {
       id: 'analytics',
       label: 'Analytics',
       icon: TrendingUp,
-      description: 'Métricas avançadas'
+      description: 'Advanced metrics'
     },
     {
       id: 'privacy',
-      label: 'Privacidade',
+      label: 'Privacy',
       icon: Shield,
-      description: 'Configurações ZK'
+      description: 'ZK configuration'
     },
     {
       id: 'reports',
-      label: 'Relatórios',
+      label: 'Reports',
       icon: FileText,
-      description: 'Documentos e auditorias'
+      description: 'Documents and audits'
     }
   ]
 
   const bottomItems = [
     {
       id: 'settings',
-      label: 'Configurações',
+      label: 'Settings',
       icon: Settings,
-      description: 'Preferências do sistema'
+      description: 'System preferences'
     }
   ]
 
@@ -134,10 +134,10 @@ const Sidebar = () => {
         <div className="mt-4 p-3 bg-sidebar-accent rounded-lg">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-success-green rounded-full animate-pulse"></div>
-            <span className="text-xs text-sidebar-foreground">Sistema Online</span>
+            <span className="text-xs text-sidebar-foreground">System Online</span>
           </div>
           <p className="text-xs text-sidebar-foreground-70 mt-1">
-            Midnight Network: Conectado
+            Midnight Network: Connected
           </p>
         </div>
       </div>
